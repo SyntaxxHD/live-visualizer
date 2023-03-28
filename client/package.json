@@ -1,0 +1,23 @@
+{
+  "name": "live-visualizer",
+  "version": "1.0.0",
+  "description": "Live Visualizer for DJ's",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SyntaxxHD/live-visualizer.git"
+  },
+  "author": "Syntaxx",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SyntaxxHD/live-visualizer/issues"
+  },
+  "homepage": "https://github.com/SyntaxxHD/live-visualizer#readme",
+  "dependencies": {
+    "electron": "^23.2.0"
+  }
+}
