@@ -1,11 +1,15 @@
-const {app, BrowserWindow, globalShortcut, desktopCapturer} = require('electron');
+const {app, BrowserWindow, globalShortcut, desktopCapturer, ipcMain} = require('electron');
 const path = require('path')
 
 app.on('ready', () => {
   let spectrumWindow = new BrowserWindow({
     fullscreen: false,
     backgroundColor: '#000',
-    preload: path.join(__dirname, 'preload.js')
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
   })
 
   spectrumWindow.setMenuBarVisibility(false)
@@ -27,11 +31,21 @@ app.on('ready', () => {
     if (index >= 0 && index < screens.length) {
       const screen = screens[index]
 
-      spectrumWindow.setBounds(screen.bounds)
+      if (process.platform === 'darwin') {
+        spectrumWindow.setFullScreen(false)
+
+        setTimeout(() => {
+          spectrumWindow.setBounds(screen.bounds)
+          spectrumWindow.setFullScreen(true)
+        }, 1000)
+      }
+      else {
+        spectrumWindow.setBounds(screen.bounds)
+      }
     }
   }
 
-  async function selectAudioSource() {
+  async function getAudioSource() {
     const inputSources = await desktopCapturer.getSources({
       types: ['screen']
     });
@@ -45,13 +59,15 @@ app.on('ready', () => {
       video: {
         mandatory: {
           chromeMediaSource: 'desktop',
-          chromeMediaSourceId: inputSources[0].id
         }
       }
     }
 
-    ipcRenderer.send('audio-spectrum', constraints)
+    return constraints
   }
 
-  selectAudioSource()
+  ipcMain.handle('audio-source', async event => {
+    const constraints = await getAudioSource()
+    return constraints
+  })
 })
