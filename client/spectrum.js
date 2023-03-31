@@ -8,14 +8,14 @@ const { ipcRenderer } = window;
 async function setDesktopStream() {
   const constraints = await ipcRenderer.invoke('audio-source')
   const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  createAudioContext(stream)
+  return stream
+  //createAudioContext(stream)
 }
 
 async function setMicStream() {
   const devices = await navigator.mediaDevices.enumerateDevices()
 
   const microphones = devices.filter(device => device.kind === 'audioinput');
-  console.log(microphones)
 
   const constraints = {
     audio: {
@@ -26,10 +26,7 @@ async function setMicStream() {
   }
 
   const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  
-  const mediaElement = document.querySelector('audio')
-  mediaElement.srcObject = stream
-  mediaElement.play()
+  return stream
 }
 
 function createAudioContext(stream) {
@@ -37,22 +34,41 @@ function createAudioContext(stream) {
   const mediaStreamSource = audioContext.createMediaStreamSource(stream)
   const analyser = audioContext.createAnalyser()
   mediaStreamSource.connect(analyser)
-  analyser.fftSize = 2048
+  analyser.fftSize = 128
 
-  return {audioContext, analyser}
+  return {audioContext: audioContext, analyser: analyser}
 }
 
 function createFFTData(audioContext, analyser) {
-  const frequencyData = new Uint8Array(analyser.frequencyBinCount)
   requestAnimationFrame(() => createFFTData(audioContext, analyser))
 
+  const frequencyData = new Uint8Array(128)
+  const frequencyRange = audioContext.sampleRate / 128
   analyser.getByteFrequencyData(frequencyData)
 
-  const fftData = new Uint8Array(128)
-  fftData.set(frequencyData.subarray(0, 32), 0)
-  fftData.set(frequencyData.subarray(64, 96), 32)
-  fftData.set(frequencyData.subarray(32, 64), 64)
-  fftData.set(frequencyData.subarray(96, 128), 96)
+  const fftData = new Float32Array(128)
+  
+  for (let i = 0; i < 64; i++) {
+    const frequency = i * frequencyRange;
+    const index = Math.round(frequency / audioContext.sampleRate * 128);
+    const leftChannelVolume = frequencyData[index] / 255;
+    fftData[i] = leftChannelVolume;
+  }
+
+  for (let i = 64; i < 128; i++) {
+    const frequency = (i - 64) * frequencyRange;
+    const index = Math.round(frequency / audioContext.sampleRate * 128);
+    const rightChannelVolume = frequencyData[index] / 255;
+    fftData[i] = rightChannelVolume;
+  }
+
+  console.log(fftData)
+
+  window.fftData(fftData)
 }
 
-setDesktopStream()
+async function registerFFTDataListener() {
+  const stream = await setMicStream()
+  const audio = createAudioContext(stream)
+  createFFTData(audio.audioContext, audio.analyser)
+}
