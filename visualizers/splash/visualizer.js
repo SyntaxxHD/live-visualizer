@@ -37,7 +37,7 @@ let config = {
     BLOOM_THRESHOLD: 0.6,
     BLOOM_SOFT_KNEE: 0.7,
     POINTER_COLOR: [{ r: 0, g: 0.15, b: 0 }],
-    SOUND_SENSITIVITY: 0.25,
+    SOUND_SENSITIVITY: 1,
     AUDIO_RESPONSIVE: true,
     FREQ_RANGE: 8,
     FREQ_RANGE_START: 0,
@@ -154,7 +154,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // });
 
     window.fftData = function (audioArray) {
-        // console.log(audioArray)
         if (!config.AUDIO_RESPONSIVE) return;
         if (audioArray[0] > 5) return;
 
@@ -1229,52 +1228,6 @@ function resizeCanvas () {
     }
 }
 
-canvas.addEventListener('mousemove', e => {
-    if (!config.SHOW_MOUSE_MOVEMENT) return;
-    pointers[0].moved = true;
-    pointers[0].dx = (e.offsetX - pointers[0].x) * 5.0;
-    pointers[0].dy = (e.offsetY - pointers[0].y) * 5.0;
-    pointers[0].x = e.offsetX;
-    pointers[0].y = e.offsetY;
-});
-
-canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const touches = e.targetTouches;
-    for (let i = 0; i < touches.length; i++) {
-        let pointer = pointers[i];
-        pointer.moved = pointer.down;
-        pointer.dx = (touches[i].pageX - pointer.x) * 8.0;
-        pointer.dy = (touches[i].pageY - pointer.y) * 8.0;
-        pointer.x = touches[i].pageX;
-        pointer.y = touches[i].pageY;
-    }
-}, false);
-
-canvas.addEventListener('mouseenter', () => {
-    pointers[0].down = true;
-    pointers[0].color = config.POINTER_COLOR.getRandom();
-});
-
-window.addEventListener('mouseleave', () => {
-    pointers[0].down = false;
-});
-
-window.addEventListener('touchend', e => {
-    const touches = e.changedTouches;
-    for (let i = 0; i < touches.length; i++)
-        for (let j = 0; j < pointers.length; j++)
-            if (touches[i].identifier == pointers[j].id)
-                pointers[j].down = false;
-});
-
-window.addEventListener('keydown', e => {
-    if (e.code === 'KeyP')
-        config.PAUSED = !config.PAUSED;
-    if (e.key === ' ')
-        splatStack.push(parseInt(Math.random() * 20) + 5);
-});
-
 function generateColor () {
     let c = HSVtoRGB(Math.random(), 1.0, 1.0);
     c.r *= 0.15;
@@ -1362,12 +1315,6 @@ function getTextureScale (texture, width, height) {
 
 function rgbToPointerColor(color) {
     let c = color.split(" ");
-    // let hue = RGBToHue(c[0], c[1], c[2]);
-    // let c2 = HSVtoRGB(hue/360, 1.0, 1.0);
-    // c2.r *= 0.15;
-    // c2.g *= 0.15;
-    // c2.b *= 0.15;
-    // return c2;
     return {
         r: c[0] * 0.15,
         g: c[1] * 0.15,

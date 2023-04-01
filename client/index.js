@@ -3,7 +3,7 @@ const path = require('path')
 
 app.on('ready', () => {
   let spectrumWindow = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: false,
     backgroundColor: '#000',
     webPreferences: {
       contextIsolation: false,
