@@ -1,0 +1,35 @@
+canvas {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.dg {
+  opacity: 0.9;
+}
+
+.dg .property-name {
+  overflow: visible;
+}
+
+.bigFont {
+  font-size: 150%;
+  color: #8C8C8C;
+}
+
+.cr.function.appBigFont {
+  font-size: 150%;
+  line-height: 27px;
+  background-color: #2F4F4F;
+}
+
+.cr.function.appBigFont .property-name {
+  float: none;
+}
+
+.cr.function.appBigFont .icon {
+  position: sticky;
+  bottom: 27px;
+}

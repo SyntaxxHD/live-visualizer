@@ -1,15 +1,20 @@
 const {ipcRenderer} = window;
 
-// (async function() {
-// 	const constraint = await ipcRenderer.invoke('audio-source')
-//   setStream(constraints)
-// })();
-
 async function setDesktopStream() {
-  const constraints = await ipcRenderer.invoke('audio-source')
-  const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  return stream
-  //createAudioContext(stream)
+  const constraints = {
+    audio: {
+      mandatory: {
+        chromeMediaSource: 'desktop'
+      }
+    },
+    video: {
+      mandatory: {
+        chromeMediaSource: 'desktop',
+      }
+    }
+  }
+
+  return await navigator.mediaDevices.getUserMedia(constraints)
 }
 
 async function setMicStream() {
@@ -85,8 +90,6 @@ function createFFTData() {
       if (item < 0 || item == Infinity) return 0
       return item
     })
-
-  //console.log(outputData)
 
   window.fftData(outputData)
 }

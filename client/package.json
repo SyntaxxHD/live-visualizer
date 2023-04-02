@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "electron .",
+    "start:splash": "electron . D:/coding/live-visualizer/visualizers/splash/dist/dist.lvc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +19,8 @@
   },
   "homepage": "https://github.com/SyntaxxHD/live-visualizer#readme",
   "dependencies": {
-    "electron": "^23.2.0"
+    "ejs-electron": "^2.1.1",
+    "electron": "^23.2.0",
+    "node-stream-zip": "^1.15.0"
   }
 }

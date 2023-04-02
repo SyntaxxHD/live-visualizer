@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./spectrum.css">
+  <% if (data.files.css) { %>
+    <link rel="stylesheet" href="data:text/css;base64,<%= data.import.css %>">
+  <% } %>
+  <title>Live Visualizer</title>
+  <script src="./spectrum.js" defer></script>
+  <% if (data.files.js) { %>
+    <script src="data:text/javascript;base64,<%= data.import.js %>" defer></script>
+  <% } %>
+</head>
+
+<body>
+  <% if (data.files.html) { %>
+   <%- data.import.html %>
+  <% } %>
+</body>
+
+</html>
