@@ -99,3 +99,7 @@ async function registerFFTDataListener() {
   createAudioContext(stream)
   createFFTData()
 }
+
+function getGlobalFile(filename) {
+  return ipcRenderer.sendSync('get-global-file', filename)
+}

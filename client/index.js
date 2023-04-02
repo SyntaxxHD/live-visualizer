@@ -4,8 +4,10 @@ const fs = require('fs');
 const StreamZip = require('node-stream-zip')
 const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
+const FileType = require('file-type')
 
 const fileArgumentIndex = app.isPackaged ? 1 : 2
+const globalFiles = []
 
 app.on('ready', () => {
   const args = process.argv
@@ -14,8 +16,7 @@ app.on('ready', () => {
     fullscreen: false,
     backgroundColor: '#000',
     webPreferences: {
-      webSecurity: false,
-      allowNavigationToBlobURLs: true,
+      contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
   })
@@ -27,7 +28,8 @@ app.on('ready', () => {
 
     const configPath = getConfigPath(args)
     const config = readConfig(configPath)
-    properties = config.properties
+    const images = config.content.images
+    properties = config.content.properties
 
     if (config instanceof Error) {
       const templateData = {
@@ -38,7 +40,7 @@ app.on('ready', () => {
       spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
     }
     else {
-      importVisualizerContent(config.visualizerPath)
+      importVisualizerContent(config.visualizerPath, images)
         .then(templateData => {
           ejse.data('data', templateData)
           spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
@@ -82,6 +84,12 @@ app.on('ready', () => {
         }
       }
     }
+
+    ipcMain.on('get-global-file', (event, arg) => {
+      const file = globalFiles.find((f) => f.name === arg);
+      if (file) event.returnValue = file.data
+      event.returnValue = null
+    })
   }
   else {
     console.error('Invalid Config')
@@ -140,7 +148,11 @@ function getConfigPath(args) {
   return path.resolve(__dirname, args[fileArgumentIndex])
 }
 
-async function importVisualizerContent(visualizerPath) {
+const allowedFolders = [
+  'images'
+]
+
+async function importVisualizerContent(visualizerPath, images) {
   try {
     const zip = new StreamZip.async({
       file: visualizerPath,
@@ -156,6 +168,15 @@ async function importVisualizerContent(visualizerPath) {
     const entries = await zip.entries()
     for (const entry of Object.values(entries)) {
       if (entry.isDirectory) continue
+
+      if (images instanceof Array && isInFolder(entry.name)) {
+        for (let i = 0; i < images.length; i++) {
+          if (entry.name != `images/${images[i]}`) continue
+
+          const image = await zip.entryData(entry.name)
+          if (await isImage(image)) await addToGlobalFiles(images[i], image)
+        }
+      }
 
       if (entry.name == 'visualizer.html') files.html = true
       if (entry.name == 'visualizer.css') files.css = true
@@ -190,4 +211,33 @@ function createViewBlob(files, htmlData, cssData, jsData) {
   }
 
   return templateData
+}
+
+function isInFolder(pathString) {
+  const folder = path.dirname(pathString)
+  if (folder) return true
+  return false
+}
+
+async function isImage(buffer) {
+  const safeImageMimeTypes = [
+    'image/bmp',
+    'image/gif',
+    'image/jpeg',
+    'image/png',
+    'image/svg+xml',
+    'image/webp'
+  ]
+
+  const file = await FileType.fromBuffer(buffer)
+  return safeImageMimeTypes.includes(file.mime)
+}
+
+async function addToGlobalFiles(name, buffer) {
+  const file = await FileType.fromBuffer(buffer)
+  const base64 = `data:${file.mime};base64,${buffer.toString('base64')}`
+  return globalFiles.push({
+    name: name,
+    data: base64
+  })
 }
