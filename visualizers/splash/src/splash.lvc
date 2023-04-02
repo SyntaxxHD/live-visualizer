@@ -1,0 +1,17 @@
+// This file is formatted in JSON with Comments
+{
+  "visualizer_path": "../dist/dist.lva",
+  "properties": {
+    "background_color": {
+      "label": "Background Color",
+      "type": "color",
+      "value": "#000000"
+    },
+    "background_image": {
+      "label": "Background Image",
+      "type": "file",
+      "fileType": "image",
+      "value": ""
+    }
+  }
+}

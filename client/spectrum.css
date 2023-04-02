@@ -1,14 +1,116 @@
 * {
-    user-select: none;
+  user-select: none;
+  cursor: none;
 }
 
-html, body {
-    overflow: hidden;
+html,
+body {
+  overflow: hidden;
 }
 
 body {
-    margin: 0;
-    position: fixed;
-    width: 100%;
-    height: 100%;
+  margin: 0;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+.error-container {
+  font-family: Arial;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.error span::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  z-index: 2;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+}
+
+.error {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.error span {
+  font-weight: bold;
+  grid-row-start: 1;
+  grid-column-start: 1;
+  font-size: max(2vw, 30px);
+  text-align: center;
+  --error-height: calc(100% / var(--errors) - 1px);
+  --inverse-index: calc(calc(var(--errors) - 1) - var(--index));
+  --clip-top: calc(var(--error-height) * var(--index));
+  --clip-bottom: calc(var(--error-height) * var(--inverse-index));
+  clip-path: inset(var(--clip-top) 0 var(--clip-bottom) 0);
+  animation: error 100ms cubic-bezier(.46, .29, 0, 1.24) 1 backwards calc(var(--index) * 120ms), glitch 1s ease infinite 1s alternate-reverse;
+}
+
+.error span:nth-child(odd) {
+  --glitch-translate: 8px;
+}
+
+.error span:nth-child(even) {
+  --glitch-translate: -8px;
+}
+
+@keyframes error {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%);
+    text-shadow: -2px 3px 0 red, 2px -3px 0 blue;
+  }
+
+  ;
+
+  60% {
+    opacity: 0.5;
+    transform: translateX(50%);
+  }
+
+  80% {
+    transform: none;
+    opacity: 1;
+    text-shadow: 2px -3px 0 red, -2px 3px 0 blue;
+  }
+
+  100% {
+    text-shadow: none;
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: -2px 3px 0 red, 2px -3px 0 blue;
+    transform: translate(var(--glitch-translate));
+  }
+
+  2% {
+    text-shadow: 2px -3px 0 red, -2px 3px 0 blue;
+  }
+
+  4%,
+  100% {
+    text-shadow: none;
+    transform: none;
+  }
+}
+
+.error-desc {
+  color: #464646;
+  margin-top: 20px;
+  text-align: center;
 }

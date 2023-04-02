@@ -6,19 +6,33 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./spectrum.css">
-  <% if (data.files.css) { %>
-    <link rel="stylesheet" href="data:text/css;base64,<%= data.import.css %>">
+  <% if (data.files) { %>
+    <% if (data.files.css) { %>
+      <link rel="stylesheet" href="data:text/css;base64,<%= data.import.css %>">
+    <% } %>
+    <script src="./spectrum.js" defer></script>
+    <% if (data.files.js) { %>
+      <script src="data:text/javascript;base64,<%= data.import.js %>" defer></script>
+    <% } %>
   <% } %>
   <title>Live Visualizer</title>
-  <script src="./spectrum.js" defer></script>
-  <% if (data.files.js) { %>
-    <script src="data:text/javascript;base64,<%= data.import.js %>" defer></script>
-  <% } %>
 </head>
 
 <body>
-  <% if (data.files.html) { %>
-   <%- data.import.html %>
+  <% if (data.files) { %>
+    <% if (data.files.html) { %>
+      <%- data.import.html %>
+    <% } %>
+  <% } %>
+  <% if (data.error) { %>
+    <div class="error-container">
+      <div class="error" style="--errors: 3;">
+        <span style="--index: 0;"><%= data.error.name %></span>
+        <span style="--index: 1;"><%= data.error.name %></span>
+        <span style="--index: 2;"><%= data.error.name %></span>
+      </div>
+      <span class="error-desc"><%= data.error.message %></span>
+    </div>
   <% } %>
 </body>
 
