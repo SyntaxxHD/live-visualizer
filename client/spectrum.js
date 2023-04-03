@@ -91,13 +91,17 @@ function createFFTData() {
       return item
     })
 
-  window.fftData(outputData)
+  window.dispatchEvent(new CustomEvent('fftDataEvent', { detail: outputData }))
 }
 
-async function registerFFTDataListener() {
-  const stream = await setDesktopStream()
+(async () => {
+  const stream = await setMicStream()
   createAudioContext(stream)
   createFFTData()
+})();
+
+function registerFFTDataListener(callback) {
+  return window.addEventListener('fftDataEvent', event => callback(event.detail))
 }
 
 function getGlobalFile(filename) {

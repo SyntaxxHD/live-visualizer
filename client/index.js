@@ -252,7 +252,7 @@ function addGlobalError(error) {
 }
 
 function getGlobalFile(filename) {
-  const file = globalFiles.find((f) => f.name === arg)
+  const file = globalFiles.find((f) => f.name === filename)
   if (!file) {
     const error = new Error(`Can't find this file. No file with the name ${filename} was imported.`)
     triggerError(error, spectrumWindow)
