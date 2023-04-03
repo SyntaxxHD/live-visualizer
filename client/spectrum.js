@@ -103,3 +103,14 @@ async function registerFFTDataListener() {
 function getGlobalFile(filename) {
   return ipcRenderer.sendSync('get-global-file', filename)
 }
+
+(() => {
+  const errors = ipcRenderer.sendSync('get-global-errors')
+  for (const error of errors) {
+    console.error(error, error.stack)
+  }
+})();
+
+ipcRenderer.on('error-message', (event, error) => {
+  console.error(error, error.stack)
+})

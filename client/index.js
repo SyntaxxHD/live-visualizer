@@ -6,13 +6,15 @@ const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
 
+let spectrumWindow
 const fileArgumentIndex = app.isPackaged ? 1 : 2
 const globalFiles = []
+const globalErrors = []
 
 app.on('ready', () => {
   const args = process.argv
 
-  const spectrumWindow = new BrowserWindow({
+  spectrumWindow = new BrowserWindow({
     fullscreen: false,
     backgroundColor: '#000',
     webPreferences: {
@@ -28,8 +30,8 @@ app.on('ready', () => {
 
     const configPath = getConfigPath(args)
     const config = readConfig(configPath)
-    const images = config.content.images
-    properties = config.content.properties
+    const images = config?.content?.images
+    properties = config?.content?.properties
 
     if (config instanceof Error) {
       const templateData = {
@@ -86,9 +88,11 @@ app.on('ready', () => {
     }
 
     ipcMain.on('get-global-file', (event, arg) => {
-      const file = globalFiles.find((f) => f.name === arg);
-      if (file) event.returnValue = file.data
-      event.returnValue = null
+      event.returnValue = getGlobalFile(arg)
+    })
+
+    ipcMain.on('get-global-errors', event => {
+      event.returnValue = globalErrors
     })
   }
   else {
@@ -97,17 +101,14 @@ app.on('ready', () => {
 })
 
 function isMac() {
-  if (process.platform === 'darwin') return true
-  return false
+  return process.platform === 'darwin';
 }
 
 function checkForConfig(args) {
   if (!args[fileArgumentIndex]) return false
   const configPath = getConfigPath(args)
   if (!isFilePath(configPath)) return false
-  if (getFileExtension(configPath) !== '.lvc') return false
-
-  return true
+  return getFileExtension(configPath) === '.lvc';
 }
 
 function readConfig(configPath) {
@@ -170,11 +171,15 @@ async function importVisualizerContent(visualizerPath, images) {
       if (entry.isDirectory) continue
 
       if (images instanceof Array && isInFolder(entry.name)) {
-        for (let i = 0; i < images.length; i++) {
-          if (entry.name != `images/${images[i]}`) continue
+        for (const element of images) {
+          if (entry.name != `images/${element}`) continue
 
           const image = await zip.entryData(entry.name)
-          if (await isImage(image)) await addToGlobalFiles(images[i], image)
+          if (!(await isImage(image))) {
+            addGlobalError(new Error(`Invalid File: ${entry.name} is not a valid image file. Please check allowed image files.`))
+            continue
+          }
+          await addToGlobalFiles(element, image)
         }
       }
 
@@ -182,6 +187,7 @@ async function importVisualizerContent(visualizerPath, images) {
       if (entry.name == 'visualizer.css') files.css = true
       if (entry.name == 'visualizer.js') files.js = true
     }
+    if (!files.html) throw new Error('The Visualizer is missing a html file.')
 
     const htmlData = files.html ? await zip.entryData('visualizer.html') : null
     const cssData = files.css ? await zip.entryData('visualizer.css') : null
@@ -215,8 +221,7 @@ function createViewBlob(files, htmlData, cssData, jsData) {
 
 function isInFolder(pathString) {
   const folder = path.dirname(pathString)
-  if (folder) return true
-  return false
+  return !!(folder)
 }
 
 async function isImage(buffer) {
@@ -230,7 +235,7 @@ async function isImage(buffer) {
   ]
 
   const file = await FileType.fromBuffer(buffer)
-  return safeImageMimeTypes.includes(file.mime)
+  return safeImageMimeTypes.includes(file?.mime)
 }
 
 async function addToGlobalFiles(name, buffer) {
@@ -240,4 +245,22 @@ async function addToGlobalFiles(name, buffer) {
     name: name,
     data: base64
   })
+}
+
+function addGlobalError(error) {
+  return globalErrors.push(error)
+}
+
+function getGlobalFile(filename) {
+  const file = globalFiles.find((f) => f.name === arg)
+  if (!file) {
+    const error = new Error(`Can't find this file. No file with the name ${filename} was imported.`)
+    triggerError(error, spectrumWindow)
+    return null
+  }
+  return file.data
+}
+
+function triggerError(error, window) {
+    return window.webContents.send('error-message', error)
 }
