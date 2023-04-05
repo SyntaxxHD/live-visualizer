@@ -19,10 +19,10 @@ To open a Visualizer, follow theses steps:
 To create a Live Visualizer Config (.lvc) file, follow these steps:
 
 1. Open a text editor of your choice.
-2. Create a new file and save it with the `.lvc` file extensions.
+2. Create a new file and save it with the `.lvc` file extension.
 3. Format the file in JSON or JSON with comments.
-4. Define the visualizer_path field as it is required and must be specified in the file. It should point to the .lva file that contains the animation for the visualizer.
-5. Define the properties for the visualizer in the file. Each property is an object with a field value for its value.
+4. Define the `visualizer_path` field as it is required and must be specified in the file. It should point to the .lva file that contains the animation for the visualizer.
+5. Define the properties for the visualizer in the file. Each property is an object with a field `value` for its value.
 
 Here is an example `.lvc` file:
 
@@ -58,14 +58,14 @@ Here is an example `.lvc` file:
 To create a Live Visualizer Animation (.lva) file, follow these steps:
 
 1. Create a new folder.
-2. Add a `visualizer.html` file to the folder. This file contains the visualizer's HTML code (Only what's inside the `body` tag.).
+2. Add a `visualizer.html` file to the folder. This file contains the visualizer's HTML code (Only what's inside the `body` tag).
 3. Optionally, add a `visualizer.css` file to the folder. This file contains the visualizer's CSS code.
 4. Optionally, add a `visualizer.js` file to the folder. This file contains the visualizer's JavaScript code.
 5. Add any images used by the visualizer to an `images` folder inside the folder.
 6. Zip the folder and change the extension to `.lva`.
 
-Make shure that you add all image filenames to the `images` field of your Live Visualizer Configuration
-If you want to use the Dev Tools you can enable by setting the `dev`field to `true`.
+Make shure that you add all image filenames to the `images` field of your Live Visualizer Configuration.
+If you want to use the Dev Tools you can enable them by setting the `dev`field to `true`.
 
 ### Using Audio Data
 To use audio data in your Visualizer, you need to register the following function to get FFT (Fast Fourier Transform) events:
