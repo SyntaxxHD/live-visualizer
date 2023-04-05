@@ -1,6 +1,7 @@
 // This file is formatted in JSON with Comments
 {
   "visualizer_path": "../dist/dist.lva",
+  "dev": true,
   "images": [
     "LDR_RGB1_0.png"
   ],

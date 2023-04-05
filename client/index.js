@@ -14,24 +14,25 @@ const globalErrors = []
 app.on('ready', () => {
   const args = process.argv
 
-  spectrumWindow = new BrowserWindow({
-    fullscreen: false,
-    backgroundColor: '#000',
-    webPreferences: {
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-
   let properties
 
   if (checkForConfig(args)) {
-    spectrumWindow.setMenuBarVisibility(false)
 
     const configPath = getConfigPath(args)
     const config = readConfig(configPath)
     const images = config?.content?.images
     properties = config?.content?.properties
+
+    spectrumWindow = new BrowserWindow({
+      fullscreen: false,
+      backgroundColor: '#000',
+      webPreferences: {
+        devTools: config?.content?.dev,
+        contextIsolation: false,
+        preload: path.join(__dirname, 'preload.js')
+      }
+    })
+    spectrumWindow.setMenuBarVisibility(false)
 
     if (config instanceof Error) {
       const templateData = {
@@ -189,9 +190,11 @@ async function importVisualizerContent(visualizerPath, images) {
     }
     if (!files.html) throw new Error('The Visualizer is missing a html file.')
 
-    const htmlData = files.html ? await zip.entryData('visualizer.html') : null
-    const cssData = files.css ? await zip.entryData('visualizer.css') : null
-    const jsData = files.js ? await zip.entryData('visualizer.js') : null
+    const [htmlData, cssData, jsData] = await Promise.all([
+      files.html ? zip.entryData('visualizer.html') : null,
+      files.css ? zip.entryData('visualizer.css') : null,
+      files.js ? zip.entryData('visualizer.js') : null,
+    ])
 
     zip.close()
 
@@ -262,5 +265,5 @@ function getGlobalFile(filename) {
 }
 
 function triggerError(error, window) {
-    return window.webContents.send('error-message', error)
+  return window.webContents.send('error-message', error)
 }
