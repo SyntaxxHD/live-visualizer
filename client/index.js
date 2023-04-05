@@ -24,7 +24,7 @@ app.on('ready', () => {
     properties = config?.content?.properties
 
     spectrumWindow = new BrowserWindow({
-      fullscreen: false,
+      fullscreen: true,
       backgroundColor: '#000',
       webPreferences: {
         devTools: config?.content?.dev,

@@ -28,45 +28,44 @@ Here is an example `.lvc` file:
 
 ```jsonc
 {
-  // Path to the .lva file
-  "visualizer_path": {
-    "value": "path/to/my_visualizer.lva"
-  },
+    // Path to the .lva file
+    "visualizer_path": "path/to/my_visualizer.lva",
 
-  // Properties for the visualizer (optional)
-  "background_color": {
-    "value": "#000000"
-  },
-  "foreground_color": {
-    "value": "#ffffff"
-  },
-  "font_size": {
-    "value": 14
-  },
+    // Properties for the visualizer (optional)
+    "properties": {
+        "background_color": {
+            "value": "#000000"
+        },
+        "foreground_color": {
+            "value": "#ffffff"
+        },
+        "font_size": {
+            "value": 14
+        },
+    },
 
-  // Images used by the visualizer (optional)
-  "images": {
-    "value": [
-      "image1.png",
-      "image2.jpg"
-    ]
-  },
+    // Images used by the visualizer (optional)
+    "images": [
+        "image1.png",
+        "image2.jpg"
+    ],
 
-  // Enable dev tools (optional)
-  "dev": {
-    "value": true
-  }
+    // Enable dev tools (optional)
+    "dev": true
 }
 ```
 ### Creating a Live Visualizer Animation (.lva) File
 To create a Live Visualizer Animation (.lva) file, follow these steps:
 
 1. Create a new folder.
-2. Add a `visualizer.html` file to the folder. This file contains the visualizer's HTML code.
+2. Add a `visualizer.html` file to the folder. This file contains the visualizer's HTML code (Only what's inside the `body` tag.).
 3. Optionally, add a `visualizer.css` file to the folder. This file contains the visualizer's CSS code.
 4. Optionally, add a `visualizer.js` file to the folder. This file contains the visualizer's JavaScript code.
 5. Add any images used by the visualizer to an `images` folder inside the folder.
 6. Zip the folder and change the extension to `.lva`.
+
+Make shure that you add all image filenames to the `images` field of your Live Visualizer Configuration
+If you want to use the Dev Tools you can enable by setting the `dev`field to `true`.
 
 ### Using Audio Data
 To use audio data in your Visualizer, you need to register the following function to get FFT (Fast Fourier Transform) events:
