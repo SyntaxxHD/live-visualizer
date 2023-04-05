@@ -26,7 +26,7 @@ To create a Live Visualizer Config (.lvc) file, follow these steps:
 
 Here is an example `.lvc` file:
 
-```json
+```jsonc
 {
   // Path to the .lva file
   "visualizer_path": {
