@@ -13,7 +13,7 @@ To open a Visualizer, follow theses steps:
 
 1. Download a Live Visualizer Animation (.lva file).
 2. Download it's corresponding Live Visualizer Configuration (.lvc file).
-3. Double-click the .lvc file to open the Live Visualizer
+3. Double-click the .lvc file to open the Visualizer
 
 ### Creating a Live Visualizer Config (.lvc) File
 To create a Live Visualizer Config (.lvc) file, follow these steps:
@@ -69,7 +69,7 @@ To create a Live Visualizer Animation (.lva) file, follow these steps:
 6. Zip the folder and change the extension to `.lva`.
 
 ### Using Audio Data
-To use audio data in your animation, you need to register the following function to get FFT (Fast Fourier Transform) events:
+To use audio data in your Visualizer, you need to register the following function to get FFT (Fast Fourier Transform) events:
 
 ```javascript
 window.registerFFTDataListener(audioArray => {
@@ -95,6 +95,22 @@ window.visualizerPropertyListener(properties => {
 ```
 
 Each property is represented by an object, and the value for that property is stored in the `value` field of the object. For example, to access the value of the `color` property, you would use `properties.color.value`.
+
+## Prerequisites for Developers
+
+1. Clone the repository with 
+```bash
+git clone https://github.com/SyntaxxHD/live-visualizer.git
+```
+2. Install node version 18.15.0 or higher from https://nodejs.org/en/download
+3. Run the following command to install dependencies:
+```bash
+npm install
+```
+4. Run a visualizer with the path to the config with
+```bash
+electron . path/to/config.lvc
+```
 
 ## Credits
 ### Code Contributions
