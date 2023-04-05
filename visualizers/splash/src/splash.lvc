@@ -1,6 +1,6 @@
 // This file is formatted in JSON with Comments
 {
-  "visualizer_path": "../dist/dist.lva",
+  "visualizer_path": "../dist/splash.lva",
   "dev": true,
   "images": [
     "LDR_RGB1_0.png"
@@ -9,13 +9,7 @@
     "background_color": {
       "label": "Background Color",
       "type": "color",
-      "value": "#000000"
-    },
-    "background_image": {
-      "label": "Background Image",
-      "type": "file",
-      "fileType": "image",
-      "value": ""
+      "value": "255 255 255"
     }
   }
 }

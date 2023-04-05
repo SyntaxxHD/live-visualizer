@@ -1,5 +1,9 @@
 const {ipcRenderer} = window;
 
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('html').classList.add('reveal')
+})
+
 async function setDesktopStream() {
   const constraints = {
     audio: {
@@ -18,9 +22,9 @@ async function setDesktopStream() {
 }
 
 async function setMicStream() {
-  const devices = await navigator.mediaDevices.enumerateDevices()
+  // const devices = await navigator.mediaDevices.enumerateDevices()
 
-  const microphones = devices.filter(device => device.kind === 'audioinput');
+  // const microphones = devices.filter(device => device.kind === 'audioinput');
 
   const constraints = {
     audio: {
@@ -30,8 +34,7 @@ async function setMicStream() {
     }
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia(constraints)
-  return stream
+  return await navigator.mediaDevices.getUserMedia(constraints)
 }
 
 const audioContext = new AudioContext()
@@ -104,6 +107,11 @@ function registerFFTDataListener(callback) {
   return window.addEventListener('fftDataEvent', event => callback(event.detail))
 }
 
+function visualizerPropertyListener(callback) {
+  window.addEventListener('visualizerPropertyEvent', event => callback(event.detail))
+  window.dispatchEvent(new CustomEvent('visualizerPropertyEvent', { detail: getProperties() }))
+}
+
 function getGlobalFile(filename) {
   return ipcRenderer.sendSync('get-global-file', filename)
 }
@@ -118,3 +126,7 @@ function getGlobalFile(filename) {
 ipcRenderer.on('error-message', (event, error) => {
   console.error(error, error.stack)
 })
+
+function getProperties() {
+  return ipcRenderer.sendSync('get-properties')
+}

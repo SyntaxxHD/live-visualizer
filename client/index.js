@@ -14,7 +14,7 @@ const globalErrors = []
 app.on('ready', () => {
   const args = process.argv
 
-  let properties
+  let properties = {}
 
   if (checkForConfig(args)) {
 
@@ -94,6 +94,10 @@ app.on('ready', () => {
 
     ipcMain.on('get-global-errors', event => {
       event.returnValue = globalErrors
+    })
+
+    ipcMain.on('get-properties', event => {
+      event.returnValue = properties
     })
   }
   else {

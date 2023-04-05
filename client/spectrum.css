@@ -3,6 +3,15 @@
   cursor: none;
 }
 
+html {
+  opacity: 0;
+}
+
+.reveal {
+  opacity: 1;
+  transition: opacity 1s linear;
+}
+
 html,
 body {
   overflow: hidden;
