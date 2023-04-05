@@ -1,4 +1,4 @@
-const {app, BrowserWindow, globalShortcut, desktopCapturer, ipcMain} = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
 const path = require('path')
 const fs = require('fs');
 const StreamZip = require('node-stream-zip')
@@ -6,104 +6,69 @@ const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
 
-let spectrumWindow
 const fileArgumentIndex = app.isPackaged ? 1 : 2
 const globalFiles = []
 const globalErrors = []
+const args = process.argv
+let spectrumWindow
+let properties = {}
 
 app.on('ready', () => {
-  const args = process.argv
-
-  let properties = {}
-
   if (checkForConfig(args)) {
-
-    const configPath = getConfigPath(args)
-    const config = readConfig(configPath)
-    const images = config?.content?.images
-    properties = config?.content?.properties
-
-    spectrumWindow = new BrowserWindow({
-      fullscreen: true,
-      backgroundColor: '#000',
-      webPreferences: {
-        devTools: config?.content?.dev,
-        contextIsolation: false,
-        preload: path.join(__dirname, 'preload.js')
-      }
-    })
-    spectrumWindow.setMenuBarVisibility(false)
-
-    if (config instanceof Error) {
-      const templateData = {
-        error: config
-      }
-
-      ejse.data('data', templateData)
-      spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
-    }
-    else {
-      importVisualizerContent(config.visualizerPath, images)
-        .then(templateData => {
-          ejse.data('data', templateData)
-          spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
-        })
-        .catch(error => {
-          const templateData = {
-            error: error
-          }
-
-          ejse.data('data', templateData)
-          spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
-        })
-    }
-
-    for (let i = 1; i <= 9; i++) {
-      globalShortcut.register(`CommandOrControl+${i}`, () => {
-        moveWindowToScreen(i - 1)
-      })
-    }
-
-    app.on('will-quit', () => {
-      globalShortcut.unregisterAll()
-    })
-
-    function moveWindowToScreen(index) {
-      const screens = require('electron').screen.getAllDisplays();
-
-      if (index >= 0 && index < screens.length) {
-        const screen = screens[index]
-
-        if (isMac()) {
-          spectrumWindow.setFullScreen(false)
-
-          setTimeout(() => {
-            spectrumWindow.setBounds(screen.bounds)
-            spectrumWindow.setFullScreen(true)
-          }, 1000)
-        }
-        else {
-          spectrumWindow.setBounds(screen.bounds)
-        }
-      }
-    }
-
-    ipcMain.on('get-global-file', (event, arg) => {
-      event.returnValue = getGlobalFile(arg)
-    })
-
-    ipcMain.on('get-global-errors', event => {
-      event.returnValue = globalErrors
-    })
-
-    ipcMain.on('get-properties', event => {
-      event.returnValue = properties
-    })
+    openSpectrumWindow()
   }
   else {
-    console.error('Invalid Config')
+    console.log('No config file found. To be implemented.')
   }
 })
+
+function openSpectrumWindow() {
+  const configPath = getConfigPath(args)
+  const config = readConfig(configPath)
+  const images = config?.content?.images
+  properties = config?.content?.properties
+
+  spectrumWindow = new BrowserWindow({
+    fullscreen: true,
+    backgroundColor: '#000',
+    webPreferences: {
+      devTools: config?.content?.dev,
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+  spectrumWindow.setMenuBarVisibility(false)
+
+  if (config instanceof Error) {
+    const templateData = {
+      error: config
+    }
+
+    ejse.data('data', templateData)
+    spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+  }
+  else {
+    importVisualizerContent(config.visualizerPath, images)
+      .then(templateData => {
+        ejse.data('data', templateData)
+        spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+      })
+      .catch(error => {
+        const templateData = {
+          error: error
+        }
+
+        ejse.data('data', templateData)
+        spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+      })
+  }
+
+  for (let i = 1; i <= 9; i++) {
+    globalShortcut.register(`CommandOrControl+${i}`, () => {
+      moveWindowToScreen(i - 1)
+    })
+  }
+}
 
 function isMac() {
   return process.platform === 'darwin';
@@ -131,12 +96,48 @@ function readConfig(configPath) {
       error.name = 'Invalid Live Visualizer Configuration.'
       throw error
     }
-    return {content: config, visualizerPath: visualizerPath}
+    return { content: config, visualizerPath: visualizerPath }
   } catch (err) {
     return err
   }
 }
 
+
+function moveWindowToScreen(index) {
+  const screens = screen.getAllDisplays()
+
+  if (index >= 0 && index < screens.length) {
+    const screen = screens[index]
+
+    if (isMac()) {
+      spectrumWindow.setFullScreen(false)
+
+      setTimeout(() => {
+        spectrumWindow.setBounds(screen.bounds)
+        spectrumWindow.setFullScreen(true)
+      }, 1000)
+    }
+    else {
+      spectrumWindow.setBounds(screen.bounds)
+    }
+  }
+}
+
+ipcMain.on('get-global-file', (event, arg) => {
+  event.returnValue = getGlobalFile(arg)
+})
+
+ipcMain.on('get-global-errors', event => {
+  event.returnValue = globalErrors
+})
+
+ipcMain.on('get-properties', event => {
+  event.returnValue = properties
+})
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll()
+})
 
 function isFilePath(string) {
   try {
