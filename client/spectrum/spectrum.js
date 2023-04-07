@@ -1,4 +1,4 @@
-const {ipcRenderer} = window;
+const {ipcRenderer} = window
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('html').classList.add('reveal')
@@ -24,7 +24,7 @@ async function setDesktopStream() {
 async function setMicStream() {
   // const devices = await navigator.mediaDevices.enumerateDevices()
 
-  // const microphones = devices.filter(device => device.kind === 'audioinput');
+  // const microphones = devices.filter(device => device.kind === 'audioinput')
 
   const constraints = {
     audio: {

@@ -1,10 +1,12 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron')
 const path = require('path')
-const fs = require('fs');
+const url = require('url')
+const fs = require('fs')
 const StreamZip = require('node-stream-zip')
 const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
+const windowStateKeeper = require('electron-window-state')
 
 const fileArgumentIndex = app.isPackaged ? 1 : 2
 const globalFiles = []
@@ -13,12 +15,14 @@ const args = process.argv
 let spectrumWindow
 let properties = {}
 
+let uiWindow
+
 app.on('ready', () => {
   if (checkForConfig(args)) {
     openSpectrumWindow()
   }
   else {
-    console.log('No config file found. To be implemented.')
+    openUIWindow()
   }
 })
 
@@ -45,13 +49,13 @@ function openSpectrumWindow() {
     }
 
     ejse.data('data', templateData)
-    spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+    spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
   }
   else {
     importVisualizerContent(config.visualizerPath, images)
       .then(templateData => {
         ejse.data('data', templateData)
-        spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+        spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
       })
       .catch(error => {
         const templateData = {
@@ -59,7 +63,7 @@ function openSpectrumWindow() {
         }
 
         ejse.data('data', templateData)
-        spectrumWindow.loadURL(`file://${__dirname}/spectrum.ejs`)
+        spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
       })
   }
 
@@ -71,14 +75,14 @@ function openSpectrumWindow() {
 }
 
 function isMac() {
-  return process.platform === 'darwin';
+  return process.platform === 'darwin'
 }
 
 function checkForConfig(args) {
   if (!args[fileArgumentIndex]) return false
   const configPath = getConfigPath(args)
   if (!isFilePath(configPath)) return false
-  return getFileExtension(configPath) === '.lvc';
+  return getFileExtension(configPath) === '.lvc'
 }
 
 function readConfig(configPath) {
@@ -148,7 +152,7 @@ function isFilePath(string) {
 }
 
 function getFileExtension(filename) {
-  return path.extname(filename).toLowerCase();
+  return path.extname(filename).toLowerCase()
 }
 
 function getConfigPath(args) {
@@ -271,4 +275,29 @@ function getGlobalFile(filename) {
 
 function triggerError(error, window) {
   return window.webContents.send('error-message', error)
+}
+
+function openUIWindow() {
+  const uiWindowState = windowStateKeeper({
+    defaultWidth: 1000,
+    defaultHeight: 800
+  })
+
+  uiWindow = new BrowserWindow({
+    x: uiWindowState.x,
+    y: uiWindowState.y,
+    width: uiWindowState.width,
+    height: uiWindowState.height,
+    webPreferences: {
+      devTools: !app.isPackaged,
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+
+  uiWindow.loadURL(url.format({
+    pathname: path.join(__dirname, 'ui/index.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
 }
