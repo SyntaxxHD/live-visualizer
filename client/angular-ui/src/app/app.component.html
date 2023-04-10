@@ -1,4 +1,4 @@
-<form action="">
+<!-- <form action="">
   <input matInput [ngxMatColorPicker]="picker">
   <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
   <ngx-mat-color-picker #picker></ngx-mat-color-picker>
@@ -24,4 +24,17 @@
       Option
     </mat-option>
   </mat-select>
+</form> -->
+
+<form [formGroup]="propertiesForm">
+  <ng-container *ngFor="let property of properties | keyvalue">
+    <div *ngIf="property.value.type === 'slider'">
+      <mat-slider
+      [formControlName]="property.key"
+      [min]="property.value.min"
+      [max]="property.value.max"
+      [step]="property.value.step">
+    </mat-slider>
+    </div>
+  </ng-container>
 </form>
