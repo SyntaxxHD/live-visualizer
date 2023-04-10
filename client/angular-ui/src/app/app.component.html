@@ -29,12 +29,25 @@
 <form [formGroup]="propertiesForm">
   <ng-container *ngFor="let property of properties | keyvalue">
     <div *ngIf="property.value.type === 'slider'">
-      <mat-slider
-      [formControlName]="property.key"
-      [min]="property.value.min"
-      [max]="property.value.max"
-      [step]="property.value.step">
-    </mat-slider>
+      <mat-card class="property-card">
+        <mat-card-content>
+          <div class="label-container">
+            <label class="name-label">{{ property.value.label }}</label>
+            <label class="value-label">{{ property.value.value }}</label>
+          </div>
+          <mat-slider [min]="property.value.min" [max]="property.value.max" [step]="property.value.step">
+            <input matSliderThumb [formControlName]="property.key" [(ngModel)]="property.value.value">
+          </mat-slider>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div *ngIf="property.value.type === 'checkbox'">
+      <mat-card class="property-card">
+        <div class="label-container label-middle">
+          <label class="name-label">{{ property.value.label }}</label>
+          <mat-checkbox color="primary" [formControlName]="property.key"></mat-checkbox>
+        </div>
+      </mat-card>
     </div>
   </ng-container>
 </form>

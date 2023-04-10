@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { PropertyMap } from '../models/property.model'
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +12,10 @@ export class AppComponent {
   title = 'Live Visualizer';
   propertiesForm: FormGroup;
   
-  properties = {
+  properties:PropertyMap = {
     bloom_intensity: {
-      fraction: true,
       max: 2,
       min: 0.1,
-      precision: 2,
       step: 0.01,
       label: 'Bloom Intensity',
       type: 'slider',
@@ -57,5 +57,16 @@ export class AppComponent {
       }
     }
     return formGroup;
+  }
+
+  isSliderProperty(property: any): property is { 
+    max: number; 
+    min: number; 
+    step: number; 
+    label: string; 
+    type: 'slider'; 
+    value: number; 
+  } {
+    return property.value.type === 'slider';
   }
 }
