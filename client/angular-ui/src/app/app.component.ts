@@ -11,8 +11,8 @@ import { ThemePalette } from '@angular/material/core';
 export class AppComponent {
   title = 'Live Visualizer';
   propertiesForm: FormGroup;
-  
-  properties:PropertyMap = {
+
+  properties: PropertyMap = {
     bloom_intensity: {
       max: 2,
       min: 0.1,
@@ -25,6 +25,50 @@ export class AppComponent {
       label: 'Audio Responsive',
       type: 'checkbox',
       value: true,
+    },
+    dye_resolution: {
+      label: 'Dye Resolution',
+      type: 'select',
+      value: 512,
+      options: [
+        {
+          label: 32,
+          value: 32
+        },
+        {
+          label: 64,
+          value: 64
+        },
+        {
+          label: 128,
+          value: 128
+        },
+        {
+          label: 256,
+          value: 256
+        },
+        {
+          label: 512,
+          value: 512
+        },
+        {
+          label: 1024,
+          value: 1024
+        },
+        {
+          label: 2048,
+          value: 2048
+        },
+        {
+          label: 4096,
+          value: 4096
+        }
+      ],
+    },
+    background_color: {
+      label: 'Background Color',
+      type: 'color',
+      value: "#ffff00"
     }
   }
 
@@ -52,6 +96,15 @@ export class AppComponent {
         case 'slider':
           formGroup.addControl(name, this.fb.control(prop.value));
           break;
+        case 'checkbox':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
+        case 'select':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
+        case 'color':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
         default:
           console.error(`Unsupported property type: ${prop.type}`);
       }
@@ -59,13 +112,13 @@ export class AppComponent {
     return formGroup;
   }
 
-  isSliderProperty(property: any): property is { 
-    max: number; 
-    min: number; 
-    step: number; 
-    label: string; 
-    type: 'slider'; 
-    value: number; 
+  isSliderProperty(property: any): property is {
+    max: number;
+    min: number;
+    step: number;
+    label: string;
+    type: 'slider';
+    value: number;
   } {
     return property.value.type === 'slider';
   }

@@ -1,31 +1,3 @@
-<!-- <form action="">
-  <input matInput [ngxMatColorPicker]="picker">
-  <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
-  <ngx-mat-color-picker #picker></ngx-mat-color-picker>
-  
-  <br>
-  
-  <mat-label>Slider</mat-label>
-  <mat-slider min="0" max="100" step="1">
-    <input matSliderThumb>
-  </mat-slider>
-  
-  <br>
-
-  <mat-checkbox color="primary">
-    Checkbox
-  </mat-checkbox>
-
-  <br>
-
-  <mat-label>Dropdown</mat-label>
-  <mat-select>
-    <mat-option>
-      Option
-    </mat-option>
-  </mat-select>
-</form> -->
-
 <form [formGroup]="propertiesForm">
   <ng-container *ngFor="let property of properties | keyvalue">
     <div *ngIf="property.value.type === 'slider'">
@@ -36,17 +8,50 @@
             <label class="value-label">{{ property.value.value }}</label>
           </div>
           <mat-slider [min]="property.value.min" [max]="property.value.max" [step]="property.value.step">
-            <input matSliderThumb [formControlName]="property.key" [(ngModel)]="property.value.value">
+            <input matSliderThumb [formControlName]="property.key">
           </mat-slider>
         </mat-card-content>
       </mat-card>
     </div>
     <div *ngIf="property.value.type === 'checkbox'">
       <mat-card class="property-card">
-        <div class="label-container label-middle">
-          <label class="name-label">{{ property.value.label }}</label>
-          <mat-checkbox color="primary" [formControlName]="property.key"></mat-checkbox>
-        </div>
+        <mat-card-content>
+          <div class="label-container label-middle">
+            <label class="name-label">{{ property.value.label }}</label>
+            <mat-checkbox color="primary" [formControlName]="property.key"></mat-checkbox>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div *ngIf="property.value.type === 'select'">
+      <mat-card class="property-card">
+        <mat-card-content>
+          <div class="label-container label-middle">
+            <label class="name-label">{{ property.value.label }}</label>
+            <mat-form-field appearance="fill">
+              <mat-label>{{ property.value.label }}</mat-label>
+              <mat-select [formControlName]="property.key">
+                <mat-option *ngFor="let option of property.value.options" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <div *ngIf="property.value.type === 'color'">
+      <mat-card class="property-card">
+        <mat-card-content>
+          <div class="label-container label-middle">
+            <label class="name-label">{{ property.value.label }}</label>
+            <mat-form-field>
+              <input matInput [ngxMatColorPicker]="picker" [formControlName]="property.key">
+              <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
+              <ngx-mat-color-picker #picker [color]="property.value.value"></ngx-mat-color-picker>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
       </mat-card>
     </div>
   </ng-container>
