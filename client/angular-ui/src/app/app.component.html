@@ -1,58 +1,35 @@
 <form [formGroup]="propertiesForm">
   <ng-container *ngFor="let property of properties | keyvalue">
-    <div *ngIf="property.value.type === 'slider'">
-      <mat-card class="property-card">
-        <mat-card-content>
-          <div class="label-container">
-            <label class="name-label">{{ property.value.label }}</label>
-            <label class="value-label">{{ property.value.value }}</label>
-          </div>
-          <mat-slider [min]="property.value.min" [max]="property.value.max" [step]="property.value.step">
-            <input matSliderThumb [formControlName]="property.key">
-          </mat-slider>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div *ngIf="property.value.type === 'checkbox'">
-      <mat-card class="property-card">
-        <mat-card-content>
-          <div class="label-container label-middle">
-            <label class="name-label">{{ property.value.label }}</label>
-            <mat-checkbox color="primary" [formControlName]="property.key"></mat-checkbox>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div *ngIf="property.value.type === 'select'">
-      <mat-card class="property-card">
-        <mat-card-content>
-          <div class="label-container label-middle">
-            <label class="name-label">{{ property.value.label }}</label>
-            <mat-form-field appearance="fill">
-              <mat-label>{{ property.value.label }}</mat-label>
-              <mat-select [formControlName]="property.key">
-                <mat-option *ngFor="let option of property.value.options" [value]="option.value">
-                  {{ option.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    <div *ngIf="property.value.type === 'color'">
-      <mat-card class="property-card">
-        <mat-card-content>
-          <div class="label-container label-middle">
-            <label class="name-label">{{ property.value.label }}</label>
-            <mat-form-field>
-              <input matInput [ngxMatColorPicker]="picker" [formControlName]="property.key">
-              <ngx-mat-color-toggle matSuffix [for]="picker"></ngx-mat-color-toggle>
-              <ngx-mat-color-picker #picker [color]="property.value.value"></ngx-mat-color-picker>
-            </mat-form-field>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
+    <ng-container *ngIf="property.value as config">
+      <slider [config]="config" [key]="property.key" [form]="propertiesForm"></slider>
+      <checkbox [config]="config" [key]="property.key" [form]="propertiesForm"></checkbox>
+      <selector [config]="config" [key]="property.key" [form]="propertiesForm"></selector>
+      <color [config]="config" [key]="property.key" [form]="propertiesForm"></color>
+      <file [config]="config" [key]="property.key" [form]="propertiesForm"></file>
+      <text [config]="config" [key]="property.key" [form]="propertiesForm"></text>
+      <div *ngIf="config.type === 'category'">
+        <mat-card class="property-card">
+          <mat-card-content>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  {{ property.value.label }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+              <ng-container *ngFor="let categoryProperty of config.properties| keyvalue">
+                <ng-container *ngIf="categoryProperty.value as categoryConfig">
+                  <slider [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></slider>
+                  <checkbox [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></checkbox>
+                  <selector [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></selector>
+                  <!-- <color [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></color> -->
+                  <file [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></file>
+                  <text [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></text>
+                </ng-container>
+              </ng-container>
+            </mat-expansion-panel>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </ng-container>
   </ng-container>
 </form>

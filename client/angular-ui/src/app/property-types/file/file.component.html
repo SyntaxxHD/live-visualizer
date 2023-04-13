@@ -1,0 +1,13 @@
+<ng-container *ngIf="config.type === 'file'">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <div class="label-container label-middle">
+        <label class="name-label">{{ config.label }}</label>
+        <div>
+          <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
+          <input hidden #fileInput type="file" id="file">
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

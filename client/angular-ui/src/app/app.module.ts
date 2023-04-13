@@ -6,10 +6,23 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MAT_COLOR_FORMATS, NgxMatColorPickerModule, NGX_MAT_COLOR_FORMATS } from '@angular-material-components/color-picker';
 import { MaterialExampleModule } from '../material.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { NgxColorsModule } from 'ngx-colors';
+import { SliderComponent } from './property-types/slider/slider.component';
+import { CheckboxComponent } from './property-types/checkbox/checkbox.component';
+import { SelectComponent } from './property-types/select/select.component';
+import { ColorComponent } from './property-types/color/color.component';
+import { FileComponent } from './property-types/file/file.component';
+import { TextComponent } from './property-types/text/text.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    SliderComponent,
+    CheckboxComponent,
+    SelectComponent,
+    ColorComponent,
+    FileComponent,
+    TextComponent
   ],
   imports: [
     BrowserModule,
@@ -17,7 +30,8 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
     NgxMatColorPickerModule,
     MaterialExampleModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    NgxColorsModule
   ],
   providers: [
     { provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }

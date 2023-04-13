@@ -1,0 +1,17 @@
+<ng-container *ngIf="config.type === 'select'">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <div class="label-container label-middle">
+        <label class="name-label">{{ config.label }}</label>
+        <mat-form-field appearance="fill">
+          <mat-label>{{ config.label }}</mat-label>
+          <mat-select [formControlName]="key">
+            <mat-option *ngFor="let option of config.options" [value]="option.value">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

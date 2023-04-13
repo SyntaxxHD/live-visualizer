@@ -1,0 +1,10 @@
+<ng-container *ngIf="config.type === 'checkbox'">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <div class="label-container label-middle">
+        <label class="name-label">{{ config.label }}</label>
+        <mat-checkbox color="primary" [formControlName]="key"></mat-checkbox>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

@@ -1,0 +1,13 @@
+<ng-container *ngIf="config.type === 'slider'">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <div class="label-container">
+        <label class="name-label">{{ config.label }}</label>
+        <label class="value-label">{{ config.value }}</label>
+      </div>
+      <mat-slider [min]="config.min" [max]="config.max" [step]="config.step">
+        <input matSliderThumb [formControlName]="key">
+      </mat-slider>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

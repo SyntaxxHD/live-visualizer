@@ -1,0 +1,13 @@
+<div *ngIf="config.type === 'text'">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <div class="label-container label-middle">
+        <label class="name-label">{{ config.label }}</label>
+        <mat-form-field>
+          <mat-label>Enter text...</mat-label>
+          <input matInput type="text" [formControlName]="key">
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

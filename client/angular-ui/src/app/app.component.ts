@@ -26,6 +26,11 @@ export class AppComponent {
       type: 'checkbox',
       value: true,
     },
+    test: {
+      label: 'Test',
+      type: 'checkbox',
+      value: true,
+    },
     dye_resolution: {
       label: 'Dye Resolution',
       type: 'select',
@@ -69,21 +74,38 @@ export class AppComponent {
       label: 'Background Color',
       type: 'color',
       value: "#ffff00"
+    },
+    background_image: {
+      label: 'Background Image',
+      type: 'file',
+      value: ''
+    },
+    text: {
+      label: 'Text',
+      type: 'text',
+      value: ''
+    },
+    categoty: {
+      label: 'Category',
+      type: 'category',
+      value: true,
+      properties: {
+        bloom_intensity: {
+          max: 2,
+          min: 0.1,
+          step: 0.01,
+          label: 'Bloom Intensity',
+          type: 'slider',
+          value: 0.8,
+        },
+        audio_responsive: {
+          label: 'Audio Responsive',
+          type: 'checkbox',
+          value: true,
+        },
+      }
     }
   }
-
-  // formArray = []
-
-  // ngOnInit() {
-  //   let formProperties: string[] = Object.keys(this.properties);
-
-  //   let i = 0;
-  //   for (let prop of formProperties ) { 
-  //       this.formArray.push(formProperties[prop]);
-  //       this.formArray[i].['name'] = prop;
-  //       i++;
-  //   }
-  // }
 
   constructor(private fb: FormBuilder) {
     this.propertiesForm = this.createForm();
@@ -103,6 +125,15 @@ export class AppComponent {
           formGroup.addControl(name, this.fb.control(prop.value));
           break;
         case 'color':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
+        case 'file':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
+        case 'text':
+          formGroup.addControl(name, this.fb.control(prop.value));
+          break;
+        case 'category':
           formGroup.addControl(name, this.fb.control(prop.value));
           break;
         default:
