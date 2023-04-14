@@ -1,9 +1,11 @@
-<ng-container *ngIf="config.type === 'slider'">
+<ng-container *ngIf="config.type === 'slider'" [formGroup]="form">
   <mat-card class="property-card">
     <mat-card-content>
       <div class="label-container">
         <label class="name-label">{{ config.label }}</label>
-        <label class="value-label">{{ config.value }}</label>
+        <label class="value-label" contentEditable (click)="onValueLabelClick($event)"
+          (blur)="onValueLabelBlur(key, $event)" (keydown)="onValueLabelKeydown($event)"
+          (keypress)="onValueLabelKeypress($event)">{{ form.controls[key].value }}</label>
       </div>
       <mat-slider [min]="config.min" [max]="config.max" [step]="config.step">
         <input matSliderThumb [formControlName]="key">

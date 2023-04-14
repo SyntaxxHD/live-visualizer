@@ -73,12 +73,13 @@ export class AppComponent {
     background_color: {
       label: 'Background Color',
       type: 'color',
-      value: "#ffff00"
+      value: "#34495e"
     },
     background_image: {
       label: 'Background Image',
       type: 'file',
-      value: ''
+      value: '',
+      fileType: 'image'
     },
     text: {
       label: 'Text',
@@ -90,7 +91,7 @@ export class AppComponent {
       type: 'category',
       value: true,
       properties: {
-        bloom_intensity: {
+        bloom_intensity2: {
           max: 2,
           min: 0.1,
           step: 0.01,
@@ -98,7 +99,7 @@ export class AppComponent {
           type: 'slider',
           value: 0.8,
         },
-        audio_responsive: {
+        audio_responsive2: {
           label: 'Audio Responsive',
           type: 'checkbox',
           value: true,
@@ -109,6 +110,9 @@ export class AppComponent {
 
   constructor(private fb: FormBuilder) {
     this.propertiesForm = this.createForm();
+    this.propertiesForm.valueChanges.subscribe(values => {
+      console.log(values);
+    })
   }
 
   createForm(): FormGroup {
@@ -135,6 +139,33 @@ export class AppComponent {
           break;
         case 'category':
           formGroup.addControl(name, this.fb.control(prop.value));
+
+          if (prop.properties) {
+            for (const [categoryName, categoryProp] of Object.entries(prop.properties)) {
+              switch (categoryProp.type) {
+                case 'slider':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                case 'checkbox':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                case 'select':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                case 'color':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                case 'file':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                case 'text':
+                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
+                  break;
+                default:
+                  console.error(`Unsupported property type: ${categoryProp.type}`);
+              }
+            }
+          }
           break;
         default:
           console.error(`Unsupported property type: ${prop.type}`);

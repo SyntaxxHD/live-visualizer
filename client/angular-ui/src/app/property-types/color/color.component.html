@@ -1,13 +1,13 @@
-<ng-container *ngIf="config.type === 'color'">
+<ng-container *ngIf="config.type === 'color'" [formGroup]="form">
   <mat-card class="property-card">
     <mat-card-content>
       <div class="label-container label-middle">
         <label class="name-label">{{ config.label }}</label>
         <div class="color-align">
-          <ngx-colors ngx-colors-trigger [formControlName]="key" [(ngModel)]="config.value"
-            [palette]="[]"></ngx-colors>
+          <ngx-colors ngx-colors-trigger [formControlName]="key"
+            [palette]="palette"></ngx-colors>
           <mat-form-field class="color-width">
-            <input matInput [formControlName]="key" [(ngModel)]="config.value">
+            <input matInput [formControlName]="key" [value]="form.controls[key].value">
           </mat-form-field>
         </div>
       </div>

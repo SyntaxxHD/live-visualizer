@@ -11,10 +11,14 @@
         <mat-card class="property-card">
           <mat-card-content>
             <mat-expansion-panel>
-              <mat-expansion-panel-header>
+              <mat-expansion-panel-header class="right-aligned-header">
                 <mat-panel-title>
                   {{ property.value.label }}
                 </mat-panel-title>
+                <mat-panel-description>
+                  <!-- <mat-checkbox [formControlName]="property.key" color="primary"></mat-checkbox> -->
+                  text
+                </mat-panel-description>
               </mat-expansion-panel-header>
               <ng-container *ngFor="let categoryProperty of config.properties| keyvalue">
                 <ng-container *ngIf="categoryProperty.value as categoryConfig">

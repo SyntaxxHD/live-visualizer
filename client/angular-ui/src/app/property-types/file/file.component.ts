@@ -11,4 +11,8 @@ export class FileComponent {
   @Input() config: Property;
   @Input() key: string;
   @Input() form: FormGroup;
+
+  selectFile() {
+    console.log('send message to main')
+  }
 }
