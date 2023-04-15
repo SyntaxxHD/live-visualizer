@@ -89,7 +89,7 @@ export class AppComponent {
     categoty: {
       label: 'Category',
       type: 'category',
-      value: true,
+      value: false,
       properties: {
         bloom_intensity2: {
           max: 2,

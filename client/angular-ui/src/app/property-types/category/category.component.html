@@ -1,0 +1,26 @@
+<ng-container [formGroup]="form">
+  <mat-card class="property-card">
+    <mat-card-content>
+      <mat-expansion-panel [disabled]="!form.controls[key].value" [expanded]="form.controls[key].value">
+        <mat-expansion-panel-header class="right-aligned-header">
+          <mat-panel-title color="primary">
+            {{ config.label }}
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-checkbox [formControlName]="key" color="primary"></mat-checkbox>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-container *ngFor="let categoryProperty of config.properties | keyvalue">
+          <ng-container *ngIf="categoryProperty.value as categoryConfig">
+            <slider *ngIf="categoryConfig.type === 'slider'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></slider>
+            <checkbox *ngIf="categoryConfig.type === 'checkbox'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></checkbox>
+            <selector *ngIf="categoryConfig.type === 'select'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></selector>
+            <color *ngIf="categoryConfig.type === 'color'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></color>
+            <file *ngIf="categoryConfig.type === 'file'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></file>
+            <text *ngIf="categoryConfig.type === 'text'" [config]="categoryConfig" [key]="categoryProperty.key" [form]="form"></text>
+          </ng-container>
+        </ng-container>
+      </mat-expansion-panel>
+    </mat-card-content>
+  </mat-card>
+</ng-container>

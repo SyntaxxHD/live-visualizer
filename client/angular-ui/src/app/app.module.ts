@@ -13,6 +13,7 @@ import { SelectComponent } from './property-types/select/select.component';
 import { ColorComponent } from './property-types/color/color.component';
 import { FileComponent } from './property-types/file/file.component';
 import { TextComponent } from './property-types/text/text.component';
+import { CategoryComponent } from './property-types/category/category.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { TextComponent } from './property-types/text/text.component';
     SelectComponent,
     ColorComponent,
     FileComponent,
-    TextComponent
+    TextComponent,
+    CategoryComponent
   ],
   imports: [
     BrowserModule,

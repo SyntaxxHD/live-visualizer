@@ -1,0 +1,16 @@
+@import "../../app.component"
+  
+.right-aligned-header > ::ng-deep .mat-content 
+  justify-content: space-between
+
+
+::ng-deep .mat-content > ::ng-deep mat-panel-title, ::ng-deep .mat-content > ::ng-deep mat-panel-description 
+  flex: 0 0 auto
+
+::ng-deep 
+  .mat-expansion-panel-header-title
+    color: rgba(0,0,0,.87) !important
+  
+.mat-expansion-panel-header[aria-disabled=true] .mat-expansion-panel-header-description
+    margin-right: 0px !important
+

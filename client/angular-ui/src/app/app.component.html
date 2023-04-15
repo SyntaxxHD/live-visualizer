@@ -1,39 +1,13 @@
 <form [formGroup]="propertiesForm">
   <ng-container *ngFor="let property of properties | keyvalue">
     <ng-container *ngIf="property.value as config">
-      <slider [config]="config" [key]="property.key" [form]="propertiesForm"></slider>
-      <checkbox [config]="config" [key]="property.key" [form]="propertiesForm"></checkbox>
-      <selector [config]="config" [key]="property.key" [form]="propertiesForm"></selector>
-      <color [config]="config" [key]="property.key" [form]="propertiesForm"></color>
-      <file [config]="config" [key]="property.key" [form]="propertiesForm"></file>
-      <text [config]="config" [key]="property.key" [form]="propertiesForm"></text>
-      <div *ngIf="config.type === 'category'">
-        <mat-card class="property-card">
-          <mat-card-content>
-            <mat-expansion-panel>
-              <mat-expansion-panel-header class="right-aligned-header">
-                <mat-panel-title>
-                  {{ property.value.label }}
-                </mat-panel-title>
-                <mat-panel-description>
-                  <!-- <mat-checkbox [formControlName]="property.key" color="primary"></mat-checkbox> -->
-                  text
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <ng-container *ngFor="let categoryProperty of config.properties| keyvalue">
-                <ng-container *ngIf="categoryProperty.value as categoryConfig">
-                  <slider [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></slider>
-                  <checkbox [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></checkbox>
-                  <selector [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></selector>
-                  <!-- <color [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></color> -->
-                  <file [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></file>
-                  <text [config]="categoryConfig" [key]="categoryProperty.key" [form]="propertiesForm"></text>
-                </ng-container>
-              </ng-container>
-            </mat-expansion-panel>
-          </mat-card-content>
-        </mat-card>
-      </div>
+      <slider *ngIf="config.type === 'slider'" [config]="config" [key]="property.key" [form]="propertiesForm"></slider>
+      <checkbox *ngIf="config.type === 'checkbox'" [config]="config" [key]="property.key" [form]="propertiesForm"></checkbox>
+      <selector *ngIf="config.type === 'select'" [config]="config" [key]="property.key" [form]="propertiesForm"></selector>
+      <color *ngIf="config.type === 'color'" [config]="config" [key]="property.key" [form]="propertiesForm"></color>
+      <file *ngIf="config.type === 'file'" [config]="config" [key]="property.key" [form]="propertiesForm"></file>
+      <text *ngIf="config.type === 'text'" [config]="config" [key]="property.key" [form]="propertiesForm"></text>
+      <category *ngIf="config.type === 'category'" [config]="config" [key]="property.key" [form]="propertiesForm"></category>
     </ng-container>
   </ng-container>
 </form>

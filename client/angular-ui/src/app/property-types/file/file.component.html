@@ -1,10 +1,11 @@
-<ng-container *ngIf="config.type === 'file' && (config.fileType === 'image' || config.fileType === 'video')" [formGroup]="form">
+<ng-container *ngIf="config.fileType === 'image' || config.fileType === 'video'" [formGroup]="form">
   <mat-card class="property-card">
     <mat-card-content>
       <div class="label-container label-middle">
         <label class="name-label">{{ config.label }}</label>
-        <div>
+        <div class="file-area">
           <button type="button" mat-raised-button (click)="selectFile()">Choose File</button>
+          <span>{{ form.controls[key].value }}</span>
         </div>
       </div>
     </mat-card-content>
