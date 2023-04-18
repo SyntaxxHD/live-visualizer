@@ -1,4 +1,6 @@
-<form [formGroup]="propertiesForm">
+<toolbar></toolbar>
+<file-drop *ngIf="!propertiesLoaded"></file-drop>
+<form *ngIf="propertiesLoaded" [formGroup]="propertiesForm">
   <ng-container *ngFor="let property of properties | keyvalue">
     <ng-container *ngIf="property.value as config">
       <slider *ngIf="config.type === 'slider'" [config]="config" [key]="property.key" [form]="propertiesForm"></slider>

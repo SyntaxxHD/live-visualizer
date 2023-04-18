@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron')
+const {app, BrowserWindow, globalShortcut, ipcMain, screen} = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
@@ -7,13 +7,15 @@ const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
 const windowStateKeeper = require('electron-window-state')
+const {get} = require('http')
 
 const fileArgumentIndex = app.isPackaged ? 1 : 2
 const globalFiles = []
 const globalErrors = []
 const args = process.argv
 let spectrumWindow
-let properties = {}
+let spectrumProperties = {}
+let uiProperties = {}
 
 let uiWindow
 
@@ -30,30 +32,24 @@ function openSpectrumWindow() {
   const configPath = getConfigPath(args)
   const config = readConfig(configPath)
   const images = config?.content?.images
-  properties = config?.content?.properties
-
-  spectrumWindow = new BrowserWindow({
-    fullscreen: true,
-    backgroundColor: '#000',
-    webPreferences: {
-      devTools: config?.content?.dev,
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
-  spectrumWindow.setMenuBarVisibility(false)
+  spectrumProperties = getSpectrumProperties(config?.content?.properties)
+  uiProperties = config?.content?.properties
 
   if (config instanceof Error) {
     const templateData = {
       error: config
     }
 
+    spectrumWindow = createSpectrumWindow(config)
+    spectrumWindow.setMenuBarVisibility(false)
     ejse.data('data', templateData)
     spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
   }
   else {
     importVisualizerContent(config.visualizerPath, images)
       .then(templateData => {
+        spectrumWindow = createSpectrumWindow(config)
+        spectrumWindow.setMenuBarVisibility(false)
         ejse.data('data', templateData)
         spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
       })
@@ -62,6 +58,8 @@ function openSpectrumWindow() {
           error: error
         }
 
+        spectrumWindow = createSpectrumWindow(config)
+        spectrumWindow.setMenuBarVisibility(false)
         ejse.data('data', templateData)
         spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
       })
@@ -100,7 +98,7 @@ function readConfig(configPath) {
       error.name = 'Invalid Live Visualizer Configuration.'
       throw error
     }
-    return { content: config, visualizerPath: visualizerPath }
+    return {content: config, visualizerPath: visualizerPath}
   } catch (err) {
     return err
   }
@@ -136,7 +134,15 @@ ipcMain.on('get-global-errors', event => {
 })
 
 ipcMain.on('get-properties', event => {
-  event.returnValue = properties
+  event.returnValue = spectrumProperties
+})
+
+ipcMain.on('get-ui-properties', event => {
+  event.returnValue = uiProperties
+})
+
+ipcMain.on('open-config', (event, arg) => {
+  uiWindow.webContents.send('ui-properties-update', getUIProperties(arg))
 })
 
 app.on('will-quit', () => {
@@ -182,7 +188,7 @@ async function importVisualizerContent(visualizerPath, images) {
 
       if (images instanceof Array && isInFolder(entry.name)) {
         for (const element of images) {
-          if (entry.name != `images/${element}`) continue
+          if (entry.name != `${allowedFolders[0]}/${element}`) continue
 
           const image = await zip.entryData(entry.name)
           if (!(await isImage(image))) {
@@ -274,7 +280,7 @@ function getGlobalFile(filename) {
 }
 
 function triggerError(error, window) {
-  return window.webContents.send('error-message', error)
+  return spectrumWindow.webContents.send('error-message', error)
 }
 
 function openUIWindow() {
@@ -300,4 +306,232 @@ function openUIWindow() {
     protocol: 'file:',
     slashes: true
   }))
+}
+
+function getSpectrumProperties(properties) {
+  let values = {}
+  const subProperties = getCategoryProperties(properties)
+  Object.assign(properties, properties, subProperties)
+
+  for (let key in properties) {
+    values[key] = properties[key].value
+    delete properties[key].value
+  }
+
+  return values
+}
+
+function getCategoryProperties(properties) {
+  let categoryProperties = {}
+
+  function getSubProperties(propertiesObject) {
+    for (let prop in propertiesObject) {
+      if (propertiesObject.hasOwnProperty(prop)) {
+        if (typeof propertiesObject[prop] === "object") {
+          if (propertiesObject[prop].type === "category") {
+            getSubProperties(propertiesObject[prop].properties)
+          } else {
+            categoryProperties[prop] = propertiesObject[prop]
+          }
+        }
+      }
+    }
+  }
+
+  for (let prop in properties) {
+    if (properties.hasOwnProperty(prop)) {
+      if (properties[prop].type === "category") {
+        getSubProperties(properties[prop].properties)
+      } else {
+        categoryProperties[prop] = properties[prop]
+      }
+    }
+  }
+
+  return categoryProperties
+}
+
+function createSpectrumWindow(config) {
+  return new BrowserWindow({
+    fullscreen: false,
+    backgroundColor: '#000',
+    webPreferences: {
+      devTools: config?.content?.dev || true,
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
+}
+
+function getUIProperties(path) {
+  const config = readUploadedConfig(path)
+  return validateProperties(config.properties)
+}
+
+function readUploadedConfig(path) {
+  try {
+    if (checkForUploadConfig(path)) {
+      const fileContent = fs.readFileSync(path, 'utf-8')
+      return jsonc.parse(fileContent)
+    }
+  } catch (err) {
+    return err
+  }
+}
+
+function checkForUploadConfig(path) {
+  if (!isFilePath(path)) return false
+  return getFileExtension(path) === '.lvc'
+}
+
+function validateProperties(properties) {
+  for (const key in properties) {
+    const property = properties[key]
+    switch (property?.type) {
+      case "slider":
+        isSliderPropertyValid(property) || delete properties[key]
+        break
+      case "checkbox":
+        isCheckboxPropertyValid(property) || delete properties[key]
+        break
+      case "select":
+        isSelectPropertyValid(property) || delete properties[key]
+        break
+      case "color":
+        isColorPropertyValid(property) || delete properties[key]
+        break
+      case "file":
+        isFilePropertyValid(property) || delete properties[key]
+        break
+      case "text":
+        isTextPropertyValid(property) || delete properties[key]
+        break
+      case "category":
+        if (isCategoryPropertyValid(property)) {
+          properties[key].properties = validateProperties(property.properties)
+        } else {
+          delete properties[key]
+        }
+        break;
+      default:
+        delete properties[key]
+        break
+    }
+  }
+  return properties
+}
+
+function isSliderPropertyValid(property) {
+  const {label, type, value, min, max, step} = property
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    'min' in property &&
+    'max' in property &&
+    'step' in property &&
+    !isNaN(value) &&
+    !isNaN(min) &&
+    !isNaN(max) &&
+    !isNaN(step) &&
+    typeof label === "string" &&
+    typeof type === "string" &&
+    typeof value === "number" &&
+    typeof min === "number" &&
+    typeof max === "number" &&
+    typeof step === "number" &&
+    value >= min &&
+    value <= max &&
+    min <= max &&
+    step > 0
+  )
+}
+
+function isCheckboxPropertyValid(property) {
+  const {label, type, value} = property
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    typeof value === 'boolean'
+  )
+}
+
+function isSelectPropertyValid(property) {
+  const {label, type, options} = property
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    'options' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    Array.isArray(options) &&
+    options.length > 0 &&
+    options.every(option => {
+      return (
+        'label' in option &&
+        'value' in option &&
+        typeof option.label === 'string'
+      )
+    })
+  )
+}
+
+function isColorPropertyValid(property) {
+  const {label, type, value} = property;
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    typeof value === 'string'
+  )
+}
+
+function isFilePropertyValid(property) {
+  const {label, type, value, fileType} = property
+
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    'fileType' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    typeof value === 'string' &&
+    typeof fileType === 'string' &&
+    (fileType === 'image' || fileType === 'video')
+  )
+}
+
+function isTextPropertyValid(property) {
+  const {label, type, value} = property
+
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    typeof value === 'string'
+  )
+}
+
+function isCategoryPropertyValid(property) {
+  const {label, type, value, properties} = property
+
+  return (
+    'label' in property &&
+    'type' in property &&
+    'value' in property &&
+    'properties' in property &&
+    typeof label === 'string' &&
+    typeof type === 'string' &&
+    typeof value === 'boolean' &&
+    typeof properties === 'object'
+  )
 }

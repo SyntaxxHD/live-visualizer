@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { Property } from 'src/models/property.model';
 
 @Component({
@@ -12,7 +12,7 @@ export class FileComponent {
   @Input() key: string;
   @Input() form: FormGroup;
 
-  selectFile() {
-    console.log('send message to main')
+  onFileSelected(file: any, key: string) {
+    this.form.controls[key].setValue(file[0].path)
   }
 }

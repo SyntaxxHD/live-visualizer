@@ -14,6 +14,9 @@ import { ColorComponent } from './property-types/color/color.component';
 import { FileComponent } from './property-types/file/file.component';
 import { TextComponent } from './property-types/text/text.component';
 import { CategoryComponent } from './property-types/category/category.component';
+import { FileDropComponent } from './file-drop/file-drop.component';
+import { ToolbarComponent } from './toolbar/toolbar.component';
+import { FileDragNDropDirective } from './file-drop/file-drag-n-drop.directive';
 
 @NgModule({
   declarations: [
@@ -24,7 +27,10 @@ import { CategoryComponent } from './property-types/category/category.component'
     ColorComponent,
     FileComponent,
     TextComponent,
-    CategoryComponent
+    CategoryComponent,
+    FileDropComponent,
+    ToolbarComponent,
+    FileDragNDropDirective
   ],
   imports: [
     BrowserModule,

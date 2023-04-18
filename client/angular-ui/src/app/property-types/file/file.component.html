@@ -4,7 +4,8 @@
       <div class="label-container label-middle">
         <label class="name-label">{{ config.label }}</label>
         <div class="file-area">
-          <button type="button" mat-raised-button (click)="selectFile()">Choose File</button>
+          <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
+            <input hidden (change)="onFileSelected(fileInput.files, key)" #fileInput type="file" [formControlName]="key">
           <span>{{ form.controls[key].value }}</span>
         </div>
       </div>
