@@ -29,5 +29,7 @@ export class FileDragNDropDirective {
     const files = evt.dataTransfer?.files;
     const validFiles: Array<File> = files ? Array.from(files) : [];
     this.filesChangeEmiter.emit(validFiles);
+
+    this.borderStyle = 'dashed';
   }
 }

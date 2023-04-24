@@ -9,7 +9,7 @@
       </span>
       <div>
         <button type="button" mat-raised-button (click)="fileInput.click()">Browse File</button>
-        <input hidden #fileInput (change)="onFileChange($event)" type="file" accept=".lvc">
+        <input hidden #fileInput (change)="onFileChange(fileInput.files)" type="file" accept=".lvc">
       </div>
     </div>
   </mat-card>

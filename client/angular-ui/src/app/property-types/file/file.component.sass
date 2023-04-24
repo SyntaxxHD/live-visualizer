@@ -8,7 +8,9 @@
 
   button
     align-self: flex-end
-  
+    white-space: nowrap
+    width: 100%
+
   span
     font-size: 12px
     margin-bottom: -10px
@@ -17,3 +19,8 @@
     text-overflow: ellipsis
     direction: rtl
     white-space: nowrap
+
+::ng-deep .mdc-button__label
+  width: 100%
+  overflow: hidden
+  text-overflow: ellipsis

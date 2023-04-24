@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { PropertyMap } from '../models/property.model'
 import { IpcRenderer } from 'electron';
@@ -16,7 +16,7 @@ export class AppComponent {
   properties: PropertyMap = {};
   propertiesLoaded = false;
 
-  constructor(private cdr: ChangeDetectorRef, private fb: FormBuilder) {}
+  constructor(private cdr: ChangeDetectorRef, private fb: FormBuilder, private ngZone: NgZone) {}
 
   ngOnInit() {
     ipcRenderer.on('ui-properties-update', (event, data) => {
@@ -24,7 +24,9 @@ export class AppComponent {
       this.propertiesForm = this.createForm();
       this.propertiesLoaded = true;
       console.log(this.properties);
-      this.cdr.detectChanges();
+      this.ngZone.run(() => {
+        this.cdr.detectChanges();
+      });
     })
   }
 
