@@ -16,76 +16,92 @@ export class AppComponent {
   properties: PropertyMap = {};
   propertiesLoaded = false;
 
-  constructor(private cdr: ChangeDetectorRef, private fb: FormBuilder, private ngZone: NgZone) {}
+  constructor(private cdr: ChangeDetectorRef, private fb: FormBuilder, private ngZone: NgZone) { }
 
   ngOnInit() {
     ipcRenderer.on('ui-properties-update', (event, data) => {
       this.properties = data;
       this.propertiesForm = this.createForm();
-      this.propertiesLoaded = true;
-      console.log(this.properties);
+      //this.propertiesLoaded = true;
+      console.log(this.propertiesForm)
       this.ngZone.run(() => {
         this.cdr.detectChanges();
       });
+
+      this.propertiesForm.valueChanges.subscribe(values => {
+        console.log(values);
+        //ipcRenderer.send('ui-properties-change', values)
+      })
     })
   }
 
+  // createForm(): FormGroup {
+  //   const formGroup = this.fb.group({});
+  //   const controlTypes = ['slider', 'checkbox', 'select', 'color', 'file', 'text'];
+
+  //   const addControl = (name: string, value: any) => {
+  //     formGroup.addControl(name, this.fb.control(value));
+  //   };
+
+  //   const createControls = (properties: any) => {
+  //     for (const [name, prop] of Object.entries(properties)) {
+  //       const typedProp = prop as { type: string, value: any, properties?: any };
+  //       if (controlTypes.includes(typedProp.type)) {
+  //         addControl(name, typedProp.value);
+  //       } 
+  //       else if (typedProp.type === 'category' && typedProp.properties) {
+  //         addControl(name, typedProp.value);
+  //         createControls(typedProp.properties);
+  //       } 
+  //       else {
+  //         console.error(`Unsupported property type: ${typedProp.type}`);
+  //       }
+  //     }
+  //   };
+
+  //   createControls(this.properties);
+  //   return formGroup;
+  // }
   createForm(): FormGroup {
     const formGroup = this.fb.group({});
-    for (const [name, prop] of Object.entries(this.properties)) {
-      switch (prop.type) {
-        case 'slider':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'checkbox':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'select':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'color':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'file':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'text':
-          formGroup.addControl(name, this.fb.control(prop.value));
-          break;
-        case 'category':
-          formGroup.addControl(name, this.fb.control(prop.value));
-
-          if (prop.properties) {
-            for (const [categoryName, categoryProp] of Object.entries(prop.properties)) {
-              switch (categoryProp.type) {
-                case 'slider':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                case 'checkbox':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                case 'select':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                case 'color':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                case 'file':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                case 'text':
-                  formGroup.addControl(categoryName, this.fb.control(categoryProp.value));
-                  break;
-                default:
-                  console.error(`Unsupported property type: ${categoryProp.type}`);
-              }
-            }
-          }
-          break;
-        default:
-          console.error(`Unsupported property type: ${prop.type}`);
+    const controlTypes = ['slider', 'checkbox', 'select', 'color', 'file', 'text'];
+  
+    const createControl = (name: string, value: any) => {
+      formGroup.addControl(name, this.fb.control(value));
+    };
+  
+    const createFormGroup = (properties: any, key: string) => {
+      const formGroup = this.fb.group({});
+      for (const [name, prop] of Object.entries(properties)) {
+        const typedProp = prop as { type: string, value: any, properties?: any };
+        if (controlTypes.includes(typedProp.type)) {
+          createControl(name, typedProp.value);
+        } else if (typedProp.type === 'category' && typedProp.properties) {
+          createControl(name, typedProp.value);
+          formGroup.addControl(name, createFormGroup(typedProp.properties, name));
+        } else {
+          console.error(`Unsupported property type: ${typedProp.type}`);
+        }
       }
-    }
+      return formGroup;
+    };
+  
+    const createControls = (properties: any) => {
+      for (const [name, prop] of Object.entries(properties)) {
+        const typedProp = prop as { type: string, value: any, properties?: any };
+        if (controlTypes.includes(typedProp.type)) {
+          createControl(name, typedProp.value);
+        } else if (typedProp.type === 'category' && typedProp.properties) {
+          createControl(name, typedProp.value);
+          formGroup.addControl(name, createFormGroup(typedProp.properties, name));
+        } else {
+          console.error(`Unsupported property type: ${typedProp.type}`);
+        }
+      }
+    };
+  
+    createControls(this.properties);
     return formGroup;
   }
+  
 }

@@ -79,25 +79,25 @@
       "type": "text",
       "value": ""
     },
-    // "category": {
-    //   "label": "Category",
-    //   "type": "category",
-    //   "value": false,
-    //   "properties": {
-    //     "bloom_intensity2": {
-    //       "max": 2,
-    //       "min": 0.1,
-    //       "step": 0.01,
-    //       "label": "Bloom Intensity",
-    //       "type": "slider",
-    //       "value": 0.8
-    //     },
-    //     "audio_responsive2": {
-    //       "label": "Audio Responsive",
-    //       "type": "checkbox",
-    //       "value": true
-    //     }
-    //   }
-    // }
+    "category": {
+      "label": "Category",
+      "type": "category",
+      "value": false,
+      "properties": {
+        "bloom_intensity2": {
+          "max": 2,
+          "min": 0.1,
+          "step": 0.01,
+          "label": "Bloom Intensity",
+          "type": "slider",
+          "value": 0.8
+        },
+        "audio_responsive2": {
+          "label": "Audio Responsive",
+          "type": "checkbox",
+          "value": true
+        }
+      }
+    }
   }
 }

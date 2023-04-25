@@ -1,11 +1,12 @@
 $gray: #757575
+$toolbar-height: 84px
 
 .center
   display: flex
   justify-content: center
   align-items: center
   width: 100%
-  height: 100vh
+  height: calc(100% - $toolbar-height)
 
 mat-card
   min-width: 0
@@ -13,6 +14,7 @@ mat-card
   margin: 20px
   padding: 20px
   border-radius: 10px
+  overflow: hidden
 
 .dashed-box
   border: 2px dashed $gray
@@ -23,10 +25,19 @@ mat-card
   align-items: center
   gap: 20px
   background-color: #0000000c
+  overflow: hidden
 
-svg 
+svg
   color: $gray
 
 span
   font-size: 18px
   text-align: center
+
+button
+  white-space: nowrap
+
+::ng-deep .mdc-button__label
+  width: 100%
+  overflow: hidden
+  text-overflow: ellipsis

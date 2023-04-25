@@ -1,15 +1,21 @@
 <toolbar></toolbar>
 <file-drop *ngIf="!propertiesLoaded"></file-drop>
-<form *ngIf="propertiesLoaded" [formGroup]="propertiesForm">
-  <ng-container *ngFor="let property of properties | keyvalue">
-    <ng-container *ngIf="property.value as config">
-      <slider *ngIf="config.type === 'slider'" [config]="config" [key]="property.key" [form]="propertiesForm"></slider>
-      <checkbox *ngIf="config.type === 'checkbox'" [config]="config" [key]="property.key" [form]="propertiesForm"></checkbox>
-      <selector *ngIf="config.type === 'select'" [config]="config" [key]="property.key" [form]="propertiesForm"></selector>
-      <color *ngIf="config.type === 'color'" [config]="config" [key]="property.key" [form]="propertiesForm"></color>
-      <file *ngIf="config.type === 'file'" [config]="config" [key]="property.key" [form]="propertiesForm"></file>
-      <text *ngIf="config.type === 'text'" [config]="config" [key]="property.key" [form]="propertiesForm"></text>
-      <category *ngIf="config.type === 'category'" [config]="config" [key]="property.key" [form]="propertiesForm"></category>
+<div class="form" *ngIf="propertiesLoaded">
+  <form [formGroup]="propertiesForm">
+    <ng-container *ngFor="let property of properties | keyvalue">
+      <ng-container *ngIf="property.value as config">
+        <slider *ngIf="config.type === 'slider'" [config]="config" [key]="property.key" [form]="propertiesForm">
+        </slider>
+        <checkbox *ngIf="config.type === 'checkbox'" [config]="config" [key]="property.key" [form]="propertiesForm">
+        </checkbox>
+        <selector *ngIf="config.type === 'select'" [config]="config" [key]="property.key" [form]="propertiesForm">
+        </selector>
+        <color *ngIf="config.type === 'color'" [config]="config" [key]="property.key" [form]="propertiesForm"></color>
+        <file *ngIf="config.type === 'file'" [config]="config" [key]="property.key" [form]="propertiesForm"></file>
+        <text *ngIf="config.type === 'text'" [config]="config" [key]="property.key" [form]="propertiesForm"></text>
+        <category *ngIf="config.type === 'category'" [config]="config" [key]="property.key" [form]="propertiesForm">
+        </category>
+      </ng-container>
     </ng-container>
-  </ng-container>
-</form>
+  </form>
+</div>
