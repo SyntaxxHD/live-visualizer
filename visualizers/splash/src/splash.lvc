@@ -84,15 +84,15 @@
       "type": "category",
       "value": false,
       "properties": {
-        "bloom_intensity2": {
+        "subprop1": {
           "max": 2,
           "min": 0.1,
           "step": 0.01,
           "label": "Bloom Intensity",
           "type": "slider",
-          "value": true
+          "value": false
         },
-        "audio_responsive2": {
+        "subprop2": {
           "label": "Audio Responsive",
           "type": "checkbox",
           "value": true

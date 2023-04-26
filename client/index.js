@@ -38,7 +38,6 @@ function openSpectrumWindow() {
   const configPath = getConfigPath(args)
   const config = readConfig(configPath)
   const images = config?.content?.images
-  configFile = config?.content
   spectrumProperties = getSpectrumProperties(config?.content?.properties)
   uiProperties = config?.content?.properties
 
@@ -150,12 +149,14 @@ ipcMain.on('ui.properties.get', event => {
 })
 
 ipcMain.on('ui.config.open', (event, arg) => {
-  uiWindow.webContents.send('ui.properties.change.output', getUIProperties(arg))
+  const properties = getUIProperties(arg)
+  console.log(configFile.properties.category.properties)
+  uiWindow.webContents.send('ui.properties.change.output', properties)
 })
 
 ipcMain.on('ui.properties.change.input', (event, arg) => {
   updateConfigFile(arg)
-  console.log(arg)
+  // console.log(arg)
 })
 
 app.on('will-quit', () => {
@@ -394,6 +395,8 @@ function createSpectrumWindow(config) {
 
 function getUIProperties(path) {
   const config = readUploadedConfig(path)
+  configFile = config
+
   return validateProperties(config.properties)
 }
 
@@ -570,20 +573,20 @@ function updateConfigFile(formProperties) {
 
   const configProperties = configFile.properties
   let newConfig = configFile
-  for (const property in formProperties) {
-    if (configProperties.hasOwnProperty(property)) {
+
+  for (const property in configProperties) {
+    if (formProperties.hasOwnProperty(property)) {
       newConfig.properties[property].value = formProperties[property]
-    } 
-    else {
-      for (const subProperty in configProperties) {
-        const subPropObj = obj.properties[subProperty]
-        if (subPropObj.type === "category" && subPropObj.properties.hasOwnProperty(property)) {
-          subPropObj.properties[property].value = formProperties[property]
-          newConfig.properties[subProperty].value = formProperties[property]
+      if (configProperties[property].type == 'category' && configProperties[property].hasOwnProperty('properties')) {
+        const subProperties = configProperties[property].properties
+        for (const subProperty in subProperties) {
+          if (formProperties.hasOwnProperty(subProperty)) {
+            newConfig.properties[property].properties[subProperty].value = formProperties[subProperty]
+          }
         }
       }
     }
   }
 
-  console.log(newConfig)
+  console.log(JSON.stringify(newConfig, null, 2))
 }
