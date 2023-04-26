@@ -9,6 +9,11 @@ const FileType = require('file-type')
 const windowStateKeeper = require('electron-window-state')
 const {get} = require('http')
 
+const errorNames = {
+  INVALID_CONFIG: 'Invalid Live Visualizer Configuration',
+  INVALID_VISUALIZER: 'Invalid Live Visualizer'
+}
+
 const fileArgumentIndex = app.isPackaged ? 1 : 2
 const globalFiles = []
 const globalErrors = []
@@ -16,6 +21,7 @@ const args = process.argv
 let spectrumWindow
 let spectrumProperties = {}
 let uiProperties = {}
+let configFile
 
 let uiWindow
 
@@ -32,12 +38,14 @@ function openSpectrumWindow() {
   const configPath = getConfigPath(args)
   const config = readConfig(configPath)
   const images = config?.content?.images
+  configFile = config?.content
   spectrumProperties = getSpectrumProperties(config?.content?.properties)
   uiProperties = config?.content?.properties
 
-  if (config instanceof Error) {
+  if (config instanceof Error || spectrumProperties instanceof Error) {
+    const error = config instanceof Error ? config : spectrumProperties;
     const templateData = {
-      error: config
+      error: error
     }
 
     spectrumWindow = createSpectrumWindow(config)
@@ -89,13 +97,13 @@ function readConfig(configPath) {
     const config = jsonc.parse(fileContent)
     if (!config.visualizer_path) {
       const error = new Error('The Visualizer path is missing in the configuration file')
-      error.name = 'Invalid Live Visualizer Configuration'
+      error.name = errorNames.INVALID_CONFIG
       throw error
     }
     const visualizerPath = path.resolve(path.dirname(configPath), config.visualizer_path)
     if (!isFilePath(visualizerPath)) {
       const error = new Error('The Visualizer path is invalid or not a file')
-      error.name = 'Invalid Live Visualizer Configuration.'
+      error.name = errorNames.INVALID_CONFIG
       throw error
     }
     return {content: config, visualizerPath: visualizerPath}
@@ -125,24 +133,29 @@ function moveWindowToScreen(index) {
   }
 }
 
-ipcMain.on('get-global-file', (event, arg) => {
+ipcMain.on('spectrum.global.files.get', (event, arg) => {
   event.returnValue = getGlobalFile(arg)
 })
 
-ipcMain.on('get-global-errors', event => {
+ipcMain.on('spectrum.global.errors.get', event => {
   event.returnValue = globalErrors
 })
 
-ipcMain.on('get-properties', event => {
+ipcMain.on('spectrum.properties.get', event => {
   event.returnValue = spectrumProperties
 })
 
-ipcMain.on('get-ui-properties', event => {
+ipcMain.on('ui.properties.get', event => {
   event.returnValue = uiProperties
 })
 
-ipcMain.on('open-config', (event, arg) => {
-  uiWindow.webContents.send('ui-properties-update', getUIProperties(arg))
+ipcMain.on('ui.config.open', (event, arg) => {
+  uiWindow.webContents.send('ui.properties.change.output', getUIProperties(arg))
+})
+
+ipcMain.on('ui.properties.change.input', (event, arg) => {
+  updateConfigFile(arg)
+  console.log(arg)
 })
 
 app.on('will-quit', () => {
@@ -216,7 +229,7 @@ async function importVisualizerContent(visualizerPath, images) {
     return createViewBlob(files, htmlData, cssData, jsData)
   } catch (err) {
     const error = new Error(err.message)
-    error.name = 'Invalid Live Visualizer'
+    error.name = errorNames.INVALID_VISUALIZER
     throw error
   }
 }
@@ -280,7 +293,7 @@ function getGlobalFile(filename) {
 }
 
 function triggerError(error, window) {
-  return spectrumWindow.webContents.send('error-message', error)
+  return spectrumWindow.webContents.send('spectrum.errors.message', error)
 }
 
 function openUIWindow() {
@@ -311,6 +324,8 @@ function openUIWindow() {
 function getSpectrumProperties(properties) {
   let values = {}
   const subProperties = getCategoryProperties(properties)
+  if (subProperties instanceof Error) return subProperties
+
   Object.assign(properties, properties, subProperties)
 
   for (let key in properties) {
@@ -322,33 +337,47 @@ function getSpectrumProperties(properties) {
 }
 
 function getCategoryProperties(properties) {
-  let categoryProperties = {}
-
-  function getSubProperties(propertiesObject) {
-    for (let prop in propertiesObject) {
-      if (propertiesObject.hasOwnProperty(prop)) {
-        if (typeof propertiesObject[prop] === "object") {
-          if (propertiesObject[prop].type === "category") {
-            getSubProperties(propertiesObject[prop].properties)
-          } else {
-            categoryProperties[prop] = propertiesObject[prop]
+  try {
+    let categoryProperties = {}
+  
+    function getSubProperties(propertiesObject) {
+      for (let prop in propertiesObject) {
+        if (propertiesObject.hasOwnProperty(prop)) {
+          if (typeof propertiesObject[prop] === "object") {
+            if (propertiesObject[prop].type === "category") {
+              getSubProperties(propertiesObject[prop].properties)
+            } else {
+              if (properties[prop]) {
+                const error = new Error(`Duplicate key '${prop}' found in properties and category properties.`)
+                error.name = errorNames.INVALID_CONFIG
+                throw error
+              }
+              categoryProperties[prop] = propertiesObject[prop]
+            }
           }
         }
       }
     }
-  }
-
-  for (let prop in properties) {
-    if (properties.hasOwnProperty(prop)) {
-      if (properties[prop].type === "category") {
-        getSubProperties(properties[prop].properties)
-      } else {
-        categoryProperties[prop] = properties[prop]
+  
+    for (let prop in properties) {
+      if (properties.hasOwnProperty(prop)) {
+        if (properties[prop].type === "category") {
+          getSubProperties(properties[prop].properties)
+        } else {
+          if (categoryProperties[prop]) {
+            const error = new Error(`Duplicate key '${prop}' found in top  properties and category properties.`)
+            error.name = errorNames.INVALID_CONFIG
+            throw error
+          }
+          categoryProperties[prop] = properties[prop]
+        }
       }
     }
+  
+    return categoryProperties
+  } catch (err) {
+    return err
   }
-
-  return categoryProperties
 }
 
 function createSpectrumWindow(config) {
@@ -534,4 +563,27 @@ function isCategoryPropertyValid(property) {
     typeof value === 'boolean' &&
     typeof properties === 'object'
   )
+}
+
+function updateConfigFile(formProperties) {
+  if (!configFile) return
+
+  const configProperties = configFile.properties
+  let newConfig = configFile
+  for (const property in formProperties) {
+    if (configProperties.hasOwnProperty(property)) {
+      newConfig.properties[property].value = formProperties[property]
+    } 
+    else {
+      for (const subProperty in configProperties) {
+        const subPropObj = obj.properties[subProperty]
+        if (subPropObj.type === "category" && subPropObj.properties.hasOwnProperty(property)) {
+          subPropObj.properties[property].value = formProperties[property]
+          newConfig.properties[subProperty].value = formProperties[property]
+        }
+      }
+    }
+  }
+
+  console.log(newConfig)
 }

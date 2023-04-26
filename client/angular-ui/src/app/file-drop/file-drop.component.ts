@@ -10,6 +10,6 @@ declare const ipcRenderer: IpcRenderer;
 })
 export class FileDropComponent {
   onFileChange(file: any) {
-    if (file[0]?.path) ipcRenderer.send('open-config', file[0]?.path)
+    if (file[0]?.path) ipcRenderer.send('ui.config.open', file[0]?.path)
   }
 }

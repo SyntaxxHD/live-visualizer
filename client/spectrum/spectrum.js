@@ -113,20 +113,20 @@ function visualizerPropertyListener(callback) {
 }
 
 function getGlobalFile(filename) {
-  return ipcRenderer.sendSync('get-global-file', filename)
+  return ipcRenderer.sendSync('spectrum.global.files.get', filename)
 }
 
 (() => {
-  const errors = ipcRenderer.sendSync('get-global-errors')
+  const errors = ipcRenderer.sendSync('spectrum.global.errors.get')
   for (const error of errors) {
     console.error(error, error.stack)
   }
 })();
 
-ipcRenderer.on('error-message', (event, error) => {
+ipcRenderer.on('spectrum.errors.message', (event, error) => {
   console.error(error, error.stack)
 })
 
 function getProperties() {
-  return ipcRenderer.sendSync('get-properties')
+  return ipcRenderer.sendSync('spectrum.properties.get')
 }

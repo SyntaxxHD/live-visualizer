@@ -1,4 +1,4 @@
-<ng-container [formGroupName]="key">
+<ng-container [formGroup]="form">
   <mat-card class="property-card">
     <mat-card-content>
       <mat-expansion-panel [disabled]="!form.controls[key].value" [expanded]="form.controls[key].value">
