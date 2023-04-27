@@ -296,7 +296,7 @@ function getGlobalFile(filename) {
   return file.data
 }
 
-function triggerError(error, window) {
+function triggerErrorSpectrum(error, window) {
   return spectrumWindow.webContents.send('spectrum.errors.message', error)
 }
 
@@ -398,6 +398,8 @@ function createSpectrumWindow(config) {
 
 function getUIProperties(path) {
   const config = readUploadedConfig(path)
+  if (config instanceof Error) triggerErrorUI(config)
+
   loadedUIConfig.content = JSON.stringify(config, null, 2)
   loadedUIConfig.path = path
 
@@ -579,7 +581,6 @@ function updateConfig(values) {
 
   const updatedConfigContent = updateConfigContent(values, configContent)
   updateConfigFile(configPath, updatedConfigContent)
-  // console.log(JSON.stringify(newConfig, null, 2))
 }
 
 function updateConfigContent(formProperties, content) {
@@ -605,8 +606,12 @@ function updateConfigContent(formProperties, content) {
   return JSON.stringify(newConfig, null, 2)
 }
 
+function triggerErrorUI(error) {
+  uiWindow.webContents.send('ui.errors.message', err)
+}
+
 function updateConfigFile(path, content) {
   fs.writeFile(path, content, 'utf8', err => {
-    console.error(err)
+    if (err) triggerErrorUI(err)
   })
 }

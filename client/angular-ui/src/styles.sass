@@ -1,6 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 @import "~@angular/material/prebuilt-themes/deeppurple-amber.css"
-  
-html, body 
+
+html, body
   margin: 0
   height: 100%
+
+.mat-mdc-snack-bar-container
+  &.red-snackbar
+    --mdc-snackbar-container-color: #fb5454 !important
+    --mat-mdc-snack-bar-button-color: #fff !important
+    --mdc-snackbar-supporting-text-color: #fff !important
