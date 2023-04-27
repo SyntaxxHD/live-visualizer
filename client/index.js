@@ -21,7 +21,11 @@ const args = process.argv
 let spectrumWindow
 let spectrumProperties = {}
 let uiProperties = {}
-let configFile
+let globalConfigFile
+let loadedUIConfig = {
+  content: '',
+  path: ''
+}
 
 let uiWindow
 
@@ -150,12 +154,11 @@ ipcMain.on('ui.properties.get', event => {
 
 ipcMain.on('ui.config.open', (event, arg) => {
   const properties = getUIProperties(arg)
-  console.log(configFile.properties.category.properties)
   uiWindow.webContents.send('ui.properties.change.output', properties)
 })
 
 ipcMain.on('ui.properties.change.input', (event, arg) => {
-  updateConfigFile(arg)
+  updateConfig(arg)
   // console.log(arg)
 })
 
@@ -395,7 +398,8 @@ function createSpectrumWindow(config) {
 
 function getUIProperties(path) {
   const config = readUploadedConfig(path)
-  configFile = config
+  loadedUIConfig.content = JSON.stringify(config, null, 2)
+  loadedUIConfig.path = path
 
   return validateProperties(config.properties)
 }
@@ -417,40 +421,41 @@ function checkForUploadConfig(path) {
 }
 
 function validateProperties(properties) {
-  for (const key in properties) {
-    const property = properties[key]
+  const modifiedProperties = properties
+  for (const key in modifiedProperties) {
+    const property = modifiedProperties[key]
     switch (property?.type) {
       case "slider":
-        isSliderPropertyValid(property) || delete properties[key]
+        isSliderPropertyValid(property) || delete modifiedProperties[key]
         break
       case "checkbox":
-        isCheckboxPropertyValid(property) || delete properties[key]
+        isCheckboxPropertyValid(property) || delete modifiedProperties[key]
         break
       case "select":
-        isSelectPropertyValid(property) || delete properties[key]
+        isSelectPropertyValid(property) || delete modifiedProperties[key]
         break
       case "color":
-        isColorPropertyValid(property) || delete properties[key]
+        isColorPropertyValid(property) || delete modifiedProperties[key]
         break
       case "file":
-        isFilePropertyValid(property) || delete properties[key]
+        isFilePropertyValid(property) || delete modifiedProperties[key]
         break
       case "text":
-        isTextPropertyValid(property) || delete properties[key]
+        isTextPropertyValid(property) || delete modifiedProperties[key]
         break
       case "category":
         if (isCategoryPropertyValid(property)) {
-          properties[key].properties = validateProperties(property.properties)
+          modifiedProperties[key].properties = validateProperties(property.properties)
         } else {
-          delete properties[key]
+          delete modifiedProperties[key]
         }
         break;
       default:
-        delete properties[key]
+        delete modifiedProperties[key]
         break
     }
   }
-  return properties
+  return modifiedProperties
 }
 
 function isSliderPropertyValid(property) {
@@ -568,11 +573,20 @@ function isCategoryPropertyValid(property) {
   )
 }
 
-function updateConfigFile(formProperties) {
-  if (!configFile) return
+function updateConfig(values) {
+  const configContent = loadedUIConfig.content
+  const configPath = loadedUIConfig.path
 
-  const configProperties = configFile.properties
-  let newConfig = configFile
+  const updatedConfigContent = updateConfigContent(values, configContent)
+  updateConfigFile(configPath, updatedConfigContent)
+  // console.log(JSON.stringify(newConfig, null, 2))
+}
+
+function updateConfigContent(formProperties, content) {
+  if (!content) return
+
+  let newConfig = JSON.parse(content)
+  const configProperties = newConfig.properties
 
   for (const property in configProperties) {
     if (formProperties.hasOwnProperty(property)) {
@@ -588,5 +602,11 @@ function updateConfigFile(formProperties) {
     }
   }
 
-  console.log(JSON.stringify(newConfig, null, 2))
+  return JSON.stringify(newConfig, null, 2)
+}
+
+function updateConfigFile(path, content) {
+  fs.writeFile(path, content, 'utf8', err => {
+    console.error(err)
+  })
 }

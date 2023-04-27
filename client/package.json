@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "cd angular-ui && npm run build && cd .. && electron .",
+    "start:dev": "electron .",
     "start:splash": "electron . ../visualizers/splash/src/splash.lvc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
