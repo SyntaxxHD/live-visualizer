@@ -610,8 +610,14 @@ function triggerErrorUI(error) {
   uiWindow.webContents.send('ui.errors.message', err)
 }
 
+let timeoutId
+
 function updateConfigFile(path, content) {
-  fs.writeFile(path, content, 'utf8', err => {
-    if (err) triggerErrorUI(err)
-  })
+  clearTimeout(timeoutId)
+  timeoutId = setTimeout(() => {
+    fs.writeFile(path, content, 'utf8', err => {
+      console.log('Saved config.')
+      if (err) triggerErrorUI(err)
+    })
+  }, 1000)
 }
