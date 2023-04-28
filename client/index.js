@@ -7,7 +7,6 @@ const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
 const windowStateKeeper = require('electron-window-state')
-const {get} = require('http')
 
 const errorNames = {
   INVALID_CONFIG: 'Invalid Live Visualizer Configuration',
@@ -21,9 +20,11 @@ const args = process.argv
 let spectrumWindow
 let spectrumProperties = {}
 let uiProperties = {}
-let globalConfigFile
 let loadedUIConfig = {
   content: '',
+  path: ''
+}
+let loadedSpectrumConfig = {
   path: ''
 }
 
