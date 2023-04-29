@@ -7,6 +7,9 @@ const ejse = require('ejs-electron')
 const jsonc = require('jsonc-parser')
 const FileType = require('file-type')
 const windowStateKeeper = require('electron-window-state')
+const colorParse = require('color-parse')
+const colorConvert = require('color-convert')
+const messenger = require('messenger')
 
 const errorNames = {
   INVALID_CONFIG: 'Invalid Live Visualizer Configuration',
@@ -52,28 +55,20 @@ function openSpectrumWindow() {
       error: error
     }
 
-    spectrumWindow = createSpectrumWindow(config)
-    spectrumWindow.setMenuBarVisibility(false)
-    ejse.data('data', templateData)
-    spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
+    createSpectrumWindow(config, templateData)
   }
   else {
     importVisualizerContent(config.visualizerPath, images)
       .then(templateData => {
-        spectrumWindow = createSpectrumWindow(config)
-        spectrumWindow.setMenuBarVisibility(false)
-        ejse.data('data', templateData)
-        spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
+        loadedSpectrumConfig.path = configPath
+        createSpectrumWindow(config, templateData)
+        createListener()
       })
       .catch(error => {
         const templateData = {
           error: error
         }
-
-        spectrumWindow = createSpectrumWindow(config)
-        spectrumWindow.setMenuBarVisibility(false)
-        ejse.data('data', templateData)
-        spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
+        createSpectrumWindow(config, templateData)
       })
   }
 
@@ -82,6 +77,17 @@ function openSpectrumWindow() {
       moveWindowToScreen(i - 1)
     })
   }
+}
+
+function createListener() {
+  const listener = messenger.createListener(29703)
+  listener.on('main.properties.change', (message, data) => {
+    if (isSameConfigLoaded(data.path, loadedSpectrumConfig.path)) {
+      const properties = JSON.parse(data.content).properties
+      const spectrumProperties = getSpectrumProperties(properties)
+      spectrumWindow.webContents.send('spectrum.properties.change.input', spectrumProperties)
+    }
+  })
 }
 
 function isMac() {
@@ -158,14 +164,21 @@ ipcMain.on('ui.config.open', (event, arg) => {
   uiWindow.webContents.send('ui.properties.change.output', properties)
 })
 
-ipcMain.on('ui.properties.change.input', (event, arg) => {
-  updateConfig(arg)
-  // console.log(arg)
+ipcMain.on('spectrum.colors.rgb', (event, arg) => {
+  event.returnValue = convertoToRGB(arg)
 })
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
 })
+
+function isSameConfigLoaded(uiConfig, spectrumConfig) {
+  return (
+    uiConfig &&
+    spectrumConfig &&
+    uiConfig === spectrumConfig
+  )
+}
 
 function isFilePath(string) {
   try {
@@ -324,6 +337,14 @@ function openUIWindow() {
     protocol: 'file:',
     slashes: true
   }))
+
+  const speaker = messenger.createSpeaker(29703)
+
+  ipcMain.on('ui.properties.change.input', (event, arg) => {
+    updateConfig(arg)
+  
+    speaker.shout('main.properties.change', {path: loadedUIConfig.path, content: loadedUIConfig.content})
+  })
 }
 
 function getSpectrumProperties(properties) {
@@ -344,7 +365,7 @@ function getSpectrumProperties(properties) {
 function getCategoryProperties(properties) {
   try {
     let categoryProperties = {}
-  
+
     function getSubProperties(propertiesObject) {
       for (let prop in propertiesObject) {
         if (propertiesObject.hasOwnProperty(prop)) {
@@ -363,7 +384,7 @@ function getCategoryProperties(properties) {
         }
       }
     }
-  
+
     for (let prop in properties) {
       if (properties.hasOwnProperty(prop)) {
         if (properties[prop].type === "category") {
@@ -378,15 +399,15 @@ function getCategoryProperties(properties) {
         }
       }
     }
-  
+
     return categoryProperties
   } catch (err) {
     return err
   }
 }
 
-function createSpectrumWindow(config) {
-  return new BrowserWindow({
+function createSpectrumWindow(config, templateData) {
+  spectrumWindow = new BrowserWindow({
     fullscreen: false,
     backgroundColor: '#000',
     webPreferences: {
@@ -395,6 +416,11 @@ function createSpectrumWindow(config) {
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+  ejse.data('data', templateData)
+
+  spectrumWindow.setMenuBarVisibility(false)
+  spectrumWindow.loadURL(`file://${__dirname}/spectrum/spectrum.ejs`)
 }
 
 function getUIProperties(path) {
@@ -581,6 +607,7 @@ function updateConfig(values) {
   const configPath = loadedUIConfig.path
 
   const updatedConfigContent = updateConfigContent(values, configContent)
+  loadedUIConfig.content = updatedConfigContent
   updateConfigFile(configPath, updatedConfigContent)
 }
 
@@ -621,4 +648,30 @@ function updateConfigFile(path, content) {
       if (err) triggerErrorUI(err)
     })
   }, 1000)
+}
+
+function convertoToRGB(colorString) {
+  if (!colorString) return {r: 0, g: 0, b: 0}
+  try {
+    const color = colorParse(colorString)
+
+    if (color.space === 'hsl') {
+      const rgb = colorConvert.hsl.rgb(color.values[0], color.values[1], color.values[2])
+      return {r: rgb[0], g: rgb[1], b: rgb[2]}
+    }
+    else if (color.space === 'hex') {
+      const rgb = colorConvert.hex.rgb(color.values)
+      return {r: rgb[0], g: rgb[1], b: rgb[2]}
+    }
+    else if (color.space === 'rgb') {
+      return {r: color.values[0], g: color.values[1], b: color.values[2]}
+    }
+    else {
+      triggerErrorSpectrum(new Error(`Invalid color string: ${color}`))
+      return {r: 0, g: 0, b: 0}
+    }
+  } catch (err) {
+    triggerErrorSpectrum(err)
+    return {r: 0, g: 0, b: 0}
+  }
 }

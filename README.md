@@ -3,8 +3,9 @@
 Live Visualizer is a program that allows DJs to have appealing visuals running in the background which are in sync with the music. It is available for Windows and Mac OS and can be downloaded from the Releases tab in Github (not available yet).
 
 ## ToDo
-- [ ] Config file save cooldown
-- [ ] Live change of properties in spectrum
+- [x] Config file save cooldown
+- [x] Live change of properties in spectrum
+- [ ] File change detection
 - [ ] Settings dialog
 - [ ] Audio source selection
 - [ ] Automatic updates

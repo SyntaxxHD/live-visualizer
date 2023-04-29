@@ -20,11 +20,14 @@
   },
   "homepage": "https://github.com/SyntaxxHD/live-visualizer#readme",
   "dependencies": {
+    "color-convert": "^2.0.1",
+    "color-parse": "^1.4.2",
     "ejs-electron": "^2.1.1",
     "electron": "^23.2.0",
     "electron-window-state": "^5.0.3",
     "file-type": "^16.5.4",
     "jsonc-parser": "^3.2.0",
+    "messenger": "^0.0.9",
     "node-stream-zip": "^1.15.0"
   }
 }

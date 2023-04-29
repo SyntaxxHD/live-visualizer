@@ -98,7 +98,7 @@ function createFFTData() {
 }
 
 (async () => {
-  const stream = await setMicStream()
+  const stream = await setDesktopStream()
   createAudioContext(stream)
   createFFTData()
 })();
@@ -127,6 +127,14 @@ ipcRenderer.on('spectrum.errors.message', (event, error) => {
   console.error(error, error.stack)
 })
 
+ipcRenderer.on('spectrum.properties.change.input', (event, properties) => {
+  window.dispatchEvent(new CustomEvent('visualizerPropertyEvent', { detail: properties }))
+})
+
 function getProperties() {
   return ipcRenderer.sendSync('spectrum.properties.get')
+}
+
+function convertToRGB(colorString) {
+  return ipcRenderer.sendSync('spectrum.colors.rgb', colorString)
 }
