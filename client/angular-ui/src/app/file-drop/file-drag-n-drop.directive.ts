@@ -8,8 +8,6 @@ export class FileDragNDropDirective {
   @Output() private filesChangeEmiter : EventEmitter<File[]> = new EventEmitter();
   @HostBinding('style.border-style') private borderStyle = '2px dashed';
 
-  constructor() { }
-
   @HostListener('dragover', ['$event']) public onDragOver(evt: DragEvent){
     evt.preventDefault();
     evt.stopPropagation();

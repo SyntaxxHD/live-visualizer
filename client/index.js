@@ -171,6 +171,10 @@ ipcMain.on('spectrum.colors.rgb', (event, arg) => {
   event.returnValue = convertoToRGB(arg)
 })
 
+ipcMain.on('ui.platform.mac', event => {
+  event.returnValue = isMac()
+})
+
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
 })

@@ -18,6 +18,7 @@ import { FileDropComponent } from './file-drop/file-drop.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { FileDragNDropDirective } from './file-drop/file-drag-n-drop.directive';
 import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
+import { SettingsDialogComponent } from './dialogs/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
     FileDropComponent,
     ToolbarComponent,
     FileDragNDropDirective,
-    UnlinkDialogComponent
+    UnlinkDialogComponent,
+    SettingsDialogComponent
   ],
   imports: [
     BrowserModule,
