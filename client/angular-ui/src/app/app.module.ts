@@ -17,6 +17,7 @@ import { CategoryComponent } from './property-types/category/category.component'
 import { FileDropComponent } from './file-drop/file-drop.component';
 import { ToolbarComponent } from './toolbar/toolbar.component';
 import { FileDragNDropDirective } from './file-drop/file-drag-n-drop.directive';
+import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { FileDragNDropDirective } from './file-drop/file-drag-n-drop.directive';
     CategoryComponent,
     FileDropComponent,
     ToolbarComponent,
-    FileDragNDropDirective
+    FileDragNDropDirective,
+    UnlinkDialogComponent
   ],
   imports: [
     BrowserModule,

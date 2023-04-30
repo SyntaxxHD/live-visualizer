@@ -8,7 +8,7 @@
     "background_color": {
       "label": "Background Color",
       "type": "color",
-      "value": "#34495e"
+      "value": "#000000"
     },
     "bloom_intensity": {
       "max": 2,

@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { PropertyMap } from '../models/property.model'
 import { IpcRenderer } from 'electron';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
 
 declare const ipcRenderer: IpcRenderer;
 
@@ -18,7 +20,7 @@ export class AppComponent {
   propertiesLoaded = false;
   blockInputChanges = false;
 
-  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private fb: FormBuilder, private snackBar: MatSnackBar) { }
+  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private fb: FormBuilder, private snackBar: MatSnackBar, public dialog: MatDialog) { }
 
   ngOnInit() {
     ipcRenderer.on('ui.properties.change.output', (event: Event, data: PropertyMap) => {
@@ -40,6 +42,15 @@ export class AppComponent {
       this.displayError(error)
     })
 
+    ipcRenderer.on('ui.properties.unlink', (event: Event) => {
+      this.properties = {};
+      this.propertiesLoaded = false;
+      this.dialog.open(UnlinkDialogComponent)
+
+      this.ngZone.run(() => {
+        this.cdr.detectChanges();
+      });
+    })
   }
 
   createForm(): FormGroup {

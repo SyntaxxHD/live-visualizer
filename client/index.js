@@ -10,6 +10,7 @@ const windowStateKeeper = require('electron-window-state')
 const colorParse = require('color-parse')
 const colorConvert = require('color-convert')
 const messenger = require('messenger')
+const chokidar = require('chokidar')
 
 const errorNames = {
   INVALID_CONFIG: 'Invalid Live Visualizer Configuration',
@@ -23,13 +24,12 @@ const args = process.argv
 let spectrumWindow
 let spectrumProperties = {}
 let uiProperties = {}
-let loadedUIConfig = {
+let loadedConfig = {
   content: '',
-  path: ''
+  path: '',
+  unlinked: true,
 }
-let loadedSpectrumConfig = {
-  path: ''
-}
+let pauseFileWatch = false
 
 let uiWindow
 
@@ -60,9 +60,10 @@ function openSpectrumWindow() {
   else {
     importVisualizerContent(config.visualizerPath, images)
       .then(templateData => {
-        loadedSpectrumConfig.path = configPath
+        loadedConfig.path = configPath
         createSpectrumWindow(config, templateData)
         createListener()
+        watchSpectrumConfigChanges()
       })
       .catch(error => {
         const templateData = {
@@ -82,7 +83,7 @@ function openSpectrumWindow() {
 function createListener() {
   const listener = messenger.createListener(29703)
   listener.on('main.properties.change', (message, data) => {
-    if (isSameConfigLoaded(data.path, loadedSpectrumConfig.path)) {
+    if (isSameConfigLoaded(data.path, loadedConfig.path)) {
       const properties = JSON.parse(data.content).properties
       const spectrumProperties = getSpectrumProperties(properties)
       spectrumWindow.webContents.send('spectrum.properties.change.input', spectrumProperties)
@@ -162,6 +163,8 @@ ipcMain.on('ui.properties.get', event => {
 ipcMain.on('ui.config.open', (event, arg) => {
   const properties = getUIProperties(arg)
   uiWindow.webContents.send('ui.properties.change.output', properties)
+
+  watchUIConfigChanges()
 })
 
 ipcMain.on('spectrum.colors.rgb', (event, arg) => {
@@ -341,9 +344,11 @@ function openUIWindow() {
   const speaker = messenger.createSpeaker(29703)
 
   ipcMain.on('ui.properties.change.input', (event, arg) => {
+    if (loadedConfig.unlinked) return
+
+    pauseFileWatch = true
     updateConfig(arg)
-  
-    speaker.shout('main.properties.change', {path: loadedUIConfig.path, content: loadedUIConfig.content})
+    speaker.shout('main.properties.change', {path: loadedConfig.path, content: loadedConfig.content})
   })
 }
 
@@ -427,8 +432,9 @@ function getUIProperties(path) {
   const config = readUploadedConfig(path)
   if (config instanceof Error) triggerErrorUI(config)
 
-  loadedUIConfig.content = JSON.stringify(config, null, 2)
-  loadedUIConfig.path = path
+  loadedConfig.content = JSON.stringify(config, null, 2)
+  loadedConfig.path = path
+  loadedConfig.unlinked = false
 
   return validateProperties(config.properties)
 }
@@ -603,11 +609,11 @@ function isCategoryPropertyValid(property) {
 }
 
 function updateConfig(values) {
-  const configContent = loadedUIConfig.content
-  const configPath = loadedUIConfig.path
+  const configContent = loadedConfig.content
+  const configPath = loadedConfig.path
 
   const updatedConfigContent = updateConfigContent(values, configContent)
-  loadedUIConfig.content = updatedConfigContent
+  loadedConfig.content = updatedConfigContent
   updateConfigFile(configPath, updatedConfigContent)
 }
 
@@ -674,4 +680,43 @@ function convertoToRGB(colorString) {
     triggerErrorSpectrum(err)
     return {r: 0, g: 0, b: 0}
   }
+}
+
+function watchUIConfigChanges() {
+  const watcher = chokidar.watch(loadedConfig.path, {
+    persistent: true,
+  })
+
+  watcher.on('change', changedFilePath => {
+    if (pauseFileWatch) {
+      pauseFileWatch = false
+      return
+    }
+    
+    if (changedFilePath === loadedConfig.path) {
+      if (loadedConfig.unlinked) loadedConfig.unlinked = false
+
+      const properties = getUIProperties(loadedConfig.path)
+      uiWindow.webContents.send('ui.properties.change.output', properties)
+    }
+  })
+  .on('unlink', changedFilePath => {
+    loadedConfig.unlinked = true;
+    uiWindow.webContents.send('ui.properties.unlink')
+  })
+}
+
+function watchSpectrumConfigChanges() {
+  const watcher = chokidar.watch(loadedConfig.path, {
+    persistent: true
+  })
+
+  watcher.on('change', changedFilePath => {
+    console.log(loadedConfig.path)
+    if (changedFilePath === loadedConfig.path) {
+      const config = readConfig(loadedConfig.path)
+      const properties = getSpectrumProperties(config?.content?.properties)
+      spectrumWindow.webContents.send('spectrum.properties.change.input', properties)
+    }
+  })
 }
