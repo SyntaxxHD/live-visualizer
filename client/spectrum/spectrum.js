@@ -4,37 +4,51 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('html').classList.add('reveal')
 })
 
-async function setDesktopStream() {
-  const constraints = {
-    audio: {
-      mandatory: {
-        chromeMediaSource: 'desktop'
-      }
-    },
-    video: {
-      mandatory: {
-        chromeMediaSource: 'desktop',
-      }
-    }
-  }
+async function setAudioStream() {
+  const deviceId = ipcRenderer.sendSync('all.settings.audiosource.get')
 
-  return await navigator.mediaDevices.getUserMedia(constraints)
-}
-
-async function setMicStream() {
-  // const devices = await navigator.mediaDevices.enumerateDevices()
-
-  // const microphones = devices.filter(device => device.kind === 'audioinput')
-
-  const constraints = {
-    audio: {
-      deviceId: {
-        exact: 'fae2a7384af2aed55a6df41019102c52697f812f4ae3ff335f620cf3d97d248e'
+  if (deviceId === 'desktop') {
+    const constraints = {
+      audio: {
+        mandatory: {
+          chromeMediaSource: 'desktop'
+        }
+      },
+      video: {
+        mandatory: {
+          chromeMediaSource: 'desktop',
+        }
       }
     }
-  }
 
-  return await navigator.mediaDevices.getUserMedia(constraints)
+    return await navigator.mediaDevices.getUserMedia(constraints)
+  }
+  else if (deviceId === 'default') {
+    const constraints = {
+      audio: {
+        deviceId: {
+          exact: 'default'
+        }
+      }
+    }
+
+    return await navigator.mediaDevices.getUserMedia(constraints)
+  }
+  else {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const microphones = devices.filter(device => device.kind === 'audioinput')
+    const desiredMicrophone = microphones.find(device => device.deviceId === deviceId)
+
+    const constraints = {
+      audio: {
+        deviceId: {
+          exact: desiredMicrophone ? deviceId : 'default'
+        }
+      }
+    }
+
+    return await navigator.mediaDevices.getUserMedia(constraints)
+  }
 }
 
 const audioContext = new AudioContext()
@@ -93,12 +107,12 @@ function createFFTData() {
       if (item < 0 || item == Infinity) return 0
       return item
     })
-
+  
   window.dispatchEvent(new CustomEvent('fftDataEvent', { detail: outputData }))
 }
 
 (async () => {
-  const stream = await setDesktopStream()
+  const stream = await setAudioStream()
   createAudioContext(stream)
   createFFTData()
 })();
@@ -129,6 +143,10 @@ ipcRenderer.on('spectrum.errors.message', (event, error) => {
 
 ipcRenderer.on('spectrum.properties.change.input', (event, properties) => {
   window.dispatchEvent(new CustomEvent('visualizerPropertyEvent', { detail: properties }))
+})
+
+ipcRenderer.on('spectrum.settings.audiosource.change', event => {
+  window.location.reload()
 })
 
 function getProperties() {
