@@ -1,4 +1,4 @@
-const {app, BrowserWindow, globalShortcut, ipcMain, screen} = require('electron')
+const {app, BrowserWindow, globalShortcut, ipcMain, screen, ipcRenderer} = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
@@ -11,7 +11,9 @@ const colorParse = require('color-parse')
 const colorConvert = require('color-convert')
 const messenger = require('messenger')
 const chokidar = require('chokidar')
+const Store = require('electron-store');
 
+const store = new Store()
 const errorNames = {
   INVALID_CONFIG: 'Invalid Live Visualizer Configuration',
   INVALID_VISUALIZER: 'Invalid Live Visualizer'
@@ -82,12 +84,17 @@ function openSpectrumWindow() {
 
 function createListener() {
   const listener = messenger.createListener(29703)
+
   listener.on('main.properties.change', (message, data) => {
     if (isSameConfigLoaded(data.path, loadedConfig.path)) {
       const properties = JSON.parse(data.content).properties
       const spectrumProperties = getSpectrumProperties(properties)
       spectrumWindow.webContents.send('spectrum.properties.change.input', spectrumProperties)
     }
+  })
+
+  listener.on('main.settings.audiosource.change', (message, data) => {
+    spectrumWindow.webContents.send('spectrum.settings.audiosource.change')
   })
 }
 
@@ -171,8 +178,20 @@ ipcMain.on('spectrum.colors.rgb', (event, arg) => {
   event.returnValue = convertoToRGB(arg)
 })
 
-ipcMain.on('ui.platform.mac', event => {
+ipcMain.on('all.platform.mac', event => {
   event.returnValue = isMac()
+})
+
+ipcMain.on('ui.colors.palette.get', event => {
+  event.returnValue = getColorsPalette()
+})
+
+ipcMain.on('ui.colors.palette.set', (event, arg) => {
+  store.set('colors.pallete', arg)
+})
+
+ipcMain.on('all.settings.audiosource.get', event => {
+  event.returnValue = getAudiosource()
 })
 
 app.on('will-quit', () => {
@@ -353,6 +372,11 @@ function openUIWindow() {
     pauseFileWatch = true
     updateConfig(arg)
     speaker.shout('main.properties.change', {path: loadedConfig.path, content: loadedConfig.content})
+  })
+
+  ipcMain.on('ui.settings.audiosource.set', (event, arg) => {
+    store.set('settings.audiosource', arg)
+    speaker.shout('main.settings.audiosource.change')
   })
 }
 
@@ -654,7 +678,6 @@ function updateConfigFile(path, content) {
   clearTimeout(timeoutId)
   timeoutId = setTimeout(() => {
     fs.writeFile(path, content, 'utf8', err => {
-      console.log('Saved config.')
       if (err) triggerErrorUI(err)
     })
   }, 1000)
@@ -716,11 +739,43 @@ function watchSpectrumConfigChanges() {
   })
 
   watcher.on('change', changedFilePath => {
-    console.log(loadedConfig.path)
     if (changedFilePath === loadedConfig.path) {
       const config = readConfig(loadedConfig.path)
       const properties = getSpectrumProperties(config?.content?.properties)
       spectrumWindow.webContents.send('spectrum.properties.change.input', properties)
     }
   })
+}
+
+function getColorsPalette() {
+  if (!store.has('colors.palette')) return null
+
+  const palette = store.get('colors.palette')
+  if (!isValidColorPalette(palette)) return null
+  return palette
+}
+
+function isValidColorPalette(palette) {
+  return (
+    Array.isArray(palette) &&
+    palette.length === 4 &&
+    palette.every(item => {
+      return typeof item === 'string'
+    })
+  )
+}
+
+function getAudiosource() {
+  if (!store.has('settings.audiosource')) {
+    if (isMac()) {
+      store.set('settings.audiosource', 'default')
+      return 'default'
+    }
+    store.set('settings.audiosource', 'desktop')
+    return 'desktop'
+  }
+  const source = store.get('settings.audiosource')
+
+  if (source === 'desktop' && isMac()) return 'default'
+  return source
 }

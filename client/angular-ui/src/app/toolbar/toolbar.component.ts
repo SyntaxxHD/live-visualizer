@@ -18,7 +18,7 @@ export class ToolbarComponent {
     {
       label: 'Desktop Audio',
       value: 'desktop',
-      unavailable: ipcRenderer.sendSync('ui.platform.mac')
+      unavailable: ipcRenderer.sendSync('all.platform.mac')
     }
   ]
 

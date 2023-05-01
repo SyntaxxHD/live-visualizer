@@ -5,9 +5,9 @@ Live Visualizer is a program that allows DJs to have appealing visuals running i
 ## ToDo
 - [x] Config file save cooldown
 - [x] Live change of properties in spectrum
-- [ ] File change detection
-- [ ] Settings dialog
-- [ ] Audio source selection
+- [x] File change detection
+- [x] Settings dialog
+- [x] Audio source selection
 - [ ] Automatic updates
 - [ ] Dark mode support
 - [ ] Visualizer title in UI

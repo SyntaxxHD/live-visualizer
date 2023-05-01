@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { FormGroup } from '@angular/forms';
+import { IpcRenderer } from 'electron';
 import { Property } from 'src/models/property.model';
 
 const defaultPalette = ['#e74c3c', '#2ecc71', '#3498db', '#f1c40f'];
+declare const ipcRenderer: IpcRenderer
 
 @Component({
   selector: 'color',
@@ -14,7 +16,7 @@ export class ColorComponent {
   @Input() key: string;
   @Input() form: FormGroup;
 
-  palette: string[] = this.getPaletteFromLocalStorage() || defaultPalette;
+  palette: string[] = ipcRenderer.sendSync('ui.colors.palette.get') || defaultPalette;
 
   ngOnInit(): void {
     this.form.controls[this.key].valueChanges.subscribe(value => {
@@ -23,20 +25,7 @@ export class ColorComponent {
       shiftedPalette.push(newColor);
       this.palette = shiftedPalette;
       localStorage.setItem('palette', JSON.stringify(this.palette));
+      ipcRenderer.send('ui.colors.palette.set', this.palette)
     })
   }
-
-  private getPaletteFromLocalStorage(): string[] | null {
-    const paletteJson = localStorage.getItem('palette');
-    if (paletteJson !== null) {
-      try {
-        const parsedPalette = JSON.parse(paletteJson);
-        if (Array.isArray(parsedPalette) && parsedPalette.length === 4) {
-          return parsedPalette;
-        }
-      } catch (error) {}
-    }
-    return null;
-  }
-
 }

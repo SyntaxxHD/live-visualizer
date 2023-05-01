@@ -1,7 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, UntypedFormControl } from '@angular/forms';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { IpcRenderer } from 'electron';
 import { AudioSource } from 'src/models/audiosource.model';
+
+declare const ipcRenderer: IpcRenderer
 
 @Component({
   selector: 'app-settings',
@@ -13,6 +16,7 @@ export class SettingsDialogComponent {
 
   settingsForm: FormGroup
   audioSources: Array<AudioSource> = this.data
+  selectedSource: string = ipcRenderer.sendSync('all.settings.audiosource.get')
 
   get audioSource(): FormControl<string> {
     return this.settingsForm.get('audioSource') as UntypedFormControl;
@@ -20,10 +24,13 @@ export class SettingsDialogComponent {
 
   ngOnInit(): void {
     this.settingsForm = this.fb.group({
-      audioSource: ['']
+      audioSource: [this.selectedSource]
     })
 
     this.getAudioSources()
+    this.settingsForm.valueChanges.subscribe(value => {
+      ipcRenderer.send('ui.settings.audiosource.set', value.audioSource)
+    })
   }
 
   getAudioSources(): void {
