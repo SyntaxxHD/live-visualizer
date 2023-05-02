@@ -1,6 +1,7 @@
 {
   "visualizer_path": "../dist/splash.lva",
   "dev": true,
+  "title": "Colorful Fluid Visualizer",
   "images": [
     "LDR_RGB1_0.png"
   ],
@@ -8,7 +9,7 @@
     "background_color": {
       "label": "Background Color",
       "type": "color",
-      "value": "#000000"
+      "value": "#6b6b6b"
     },
     "bloom_intensity": {
       "max": 2,
@@ -242,7 +243,7 @@
       },
       "label": "Use Background Image",
       "type": "category",
-      "value": false
+      "value": true
     },
     "velocity_diffusion": {
       "min": 0.9,

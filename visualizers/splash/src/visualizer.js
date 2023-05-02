@@ -48,7 +48,6 @@ let config = {
 
 document.addEventListener("DOMContentLoaded", () => {
   window.visualizerPropertyListener(properties => {
-    console.log(properties)
     if (properties.bloom_intensity) config.bloom_intensity = properties.bloom_intensity.value;
     if (properties.bloom_threshold) config.bloom_threshold = properties.bloom_threshold.value;
     if (properties.colorful) config.colorful = properties.colorful.value;

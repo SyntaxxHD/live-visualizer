@@ -36,7 +36,6 @@ export class SettingsDialogComponent {
   getAudioSources(): void {
     navigator.mediaDevices.enumerateDevices()
     .then(devices => {
-      console.log(this.audioSources.find(source => source.value === 'desktop'))
       this.audioSources = [this.audioSources.find(source => source.value === 'desktop') ?? { label: '', value: '' }]
       devices.forEach(device => {
         if (device.kind !== 'audioinput') return

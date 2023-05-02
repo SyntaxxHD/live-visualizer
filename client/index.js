@@ -1,4 +1,4 @@
-const {app, BrowserWindow, globalShortcut, ipcMain, screen, ipcRenderer} = require('electron')
+const {app, BrowserWindow, globalShortcut, ipcMain, screen} = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
@@ -24,12 +24,12 @@ const globalFiles = []
 const globalErrors = []
 const args = process.argv
 let spectrumWindow
-let spectrumProperties = {}
-let uiProperties = {}
 let loadedConfig = {
   content: '',
   path: '',
   unlinked: true,
+  valid: false,
+  properties: {}
 }
 let pauseFileWatch = false
 
@@ -48,11 +48,11 @@ function openSpectrumWindow() {
   const configPath = getConfigPath(args)
   const config = readConfig(configPath)
   const images = config?.content?.images
-  spectrumProperties = getSpectrumProperties(config?.content?.properties)
-  uiProperties = config?.content?.properties
+  const properties = getSpectrumProperties(config?.content?.properties || {})
+  loadedConfig.properties = properties
 
-  if (config instanceof Error || spectrumProperties instanceof Error) {
-    const error = config instanceof Error ? config : spectrumProperties;
+  if (config instanceof Error || properties instanceof Error) {
+    const error = config instanceof Error ? config : properties;
     const templateData = {
       error: error
     }
@@ -88,7 +88,7 @@ function createListener() {
   listener.on('main.properties.change', (message, data) => {
     if (isSameConfigLoaded(data.path, loadedConfig.path)) {
       const properties = JSON.parse(data.content).properties
-      const spectrumProperties = getSpectrumProperties(properties)
+      const spectrumProperties = getSpectrumProperties(properties || {})
       spectrumWindow.webContents.send('spectrum.properties.change.input', spectrumProperties)
     }
   })
@@ -160,16 +160,12 @@ ipcMain.on('spectrum.global.errors.get', event => {
 })
 
 ipcMain.on('spectrum.properties.get', event => {
-  event.returnValue = spectrumProperties
-})
-
-ipcMain.on('ui.properties.get', event => {
-  event.returnValue = uiProperties
+  event.returnValue = loadedConfig.properties
 })
 
 ipcMain.on('ui.config.open', (event, arg) => {
-  const properties = getUIProperties(arg)
-  uiWindow.webContents.send('ui.properties.change.output', properties)
+  const {title, properties} = getUIProperties(arg) || {}
+  if (title && properties) uiWindow.webContents.send('ui.properties.change.output', {title: title, properties: properties})
 
   watchUIConfigChanges()
 })
@@ -187,7 +183,7 @@ ipcMain.on('ui.colors.palette.get', event => {
 })
 
 ipcMain.on('ui.colors.palette.set', (event, arg) => {
-  store.set('colors.pallete', arg)
+  store.set('colors.palette', arg)
 })
 
 ipcMain.on('all.settings.audiosource.get', event => {
@@ -329,14 +325,14 @@ function addGlobalError(error) {
 function getGlobalFile(filename) {
   const file = globalFiles.find((f) => f.name === filename)
   if (!file) {
-    const error = new Error(`Can't find this file. No file with the name ${filename} was imported.`)
-    triggerError(error, spectrumWindow)
+    const error = new Error(`Can't find this file. No file with the name ${filename} was imported. Make sure you specify them in the configuration.`)
+    triggerErrorSpectrum(error)
     return null
   }
   return file.data
 }
 
-function triggerErrorSpectrum(error, window) {
+function triggerErrorSpectrum(error) {
   return spectrumWindow.webContents.send('spectrum.errors.message', error)
 }
 
@@ -358,16 +354,13 @@ function openUIWindow() {
     }
   })
 
-  uiWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'ui/index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  uiWindow.loadURL(`file://${path.join(__dirname, 'ui/index.html')}`)
+  uiWindowState.manage(uiWindow)
 
   const speaker = messenger.createSpeaker(29703)
 
   ipcMain.on('ui.properties.change.input', (event, arg) => {
-    if (loadedConfig.unlinked) return
+    if (loadedConfig.unlinked || !loadedConfig.valid) return
 
     pauseFileWatch = true
     updateConfig(arg)
@@ -388,6 +381,8 @@ function getSpectrumProperties(properties) {
   Object.assign(properties, properties, subProperties)
 
   for (let key in properties) {
+    if (!properties[key].value) continue
+
     values[key] = properties[key].value
     delete properties[key].value
   }
@@ -464,7 +459,14 @@ function getUIProperties(path) {
   loadedConfig.path = path
   loadedConfig.unlinked = false
 
-  return validateProperties(config.properties)
+  if (!config.title) {
+    loadedConfig.valid = false
+    return triggerErrorUI(new Error('Invalid Config. Missing title.'))
+  }
+  if (!config.properties) return {title: config.title, properties: {}}
+  loadedConfig.valid = true
+
+  return {title: config.title, properties: validateProperties(config.properties)}
 }
 
 function readUploadedConfig(path) {
@@ -669,7 +671,8 @@ function updateConfigContent(formProperties, content) {
 }
 
 function triggerErrorUI(error) {
-  uiWindow.webContents.send('ui.errors.message', err)
+  uiWindow.webContents.send('ui.errors.message', error)
+  return null
 }
 
 let timeoutId
@@ -723,8 +726,8 @@ function watchUIConfigChanges() {
     if (changedFilePath === loadedConfig.path) {
       if (loadedConfig.unlinked) loadedConfig.unlinked = false
 
-      const properties = getUIProperties(loadedConfig.path)
-      uiWindow.webContents.send('ui.properties.change.output', properties)
+      const {title, properties} = getUIProperties(loadedConfig.path) || {}
+      uiWindow.webContents.send('ui.properties.change.output', {title: title, properties: properties})
     }
   })
   .on('unlink', changedFilePath => {
@@ -741,7 +744,7 @@ function watchSpectrumConfigChanges() {
   watcher.on('change', changedFilePath => {
     if (changedFilePath === loadedConfig.path) {
       const config = readConfig(loadedConfig.path)
-      const properties = getSpectrumProperties(config?.content?.properties)
+      const properties = getSpectrumProperties(config?.content?.properties || {})
       spectrumWindow.webContents.send('spectrum.properties.change.input', properties)
     }
   })

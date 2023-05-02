@@ -20,3 +20,8 @@ export interface Property {
 }
 
 export type PropertyMap = { [key: string]: Property };
+
+export type Config = {
+  title: string;
+  properties: PropertyMap;
+}

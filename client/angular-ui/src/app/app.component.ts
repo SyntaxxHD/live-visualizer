@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { PropertyMap } from '../models/property.model'
+import { Config, PropertyMap } from '../models/property.model'
 import { IpcRenderer } from 'electron';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +14,7 @@ declare const ipcRenderer: IpcRenderer;
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
-  title = 'Live Visualizer';
+  title: string;
   propertiesForm: FormGroup;
   properties: PropertyMap = {};
   propertiesLoaded = false;
@@ -23,9 +23,10 @@ export class AppComponent {
   constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone, private fb: FormBuilder, private snackBar: MatSnackBar, public dialog: MatDialog) { }
 
   ngOnInit() {
-    ipcRenderer.on('ui.properties.change.output', (event: Event, data: PropertyMap) => {
+    ipcRenderer.on('ui.properties.change.output', (event: Event, data: Config) => {
       this.blockInputChanges = true;
-      this.properties = data;
+      this.title = data.title;
+      this.properties = data.properties;
       this.propertiesForm = this.createForm();
       this.propertiesLoaded = true;
 
@@ -85,7 +86,6 @@ export class AppComponent {
     console.error(error)
     this.ngZone.run(() => {
       this.snackBar.open(error.message, 'OK', {
-        duration: 5000,
         panelClass: ['red-snackbar']
       })
     })

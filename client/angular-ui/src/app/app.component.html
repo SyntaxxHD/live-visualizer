@@ -1,6 +1,7 @@
 <toolbar></toolbar>
 <file-drop *ngIf="!propertiesLoaded"></file-drop>
 <div class="form" *ngIf="propertiesLoaded">
+  <h1 *ngIf="propertiesLoaded">{{ title }}</h1>
   <form [formGroup]="propertiesForm">
     <ng-container *ngFor="let property of properties | keyvalue">
       <ng-container *ngIf="property.value as config">
