@@ -20,7 +20,9 @@ export class ColorComponent {
 
   ngOnInit(): void {
     this.form.controls[this.key].valueChanges.subscribe(value => {
-      const newColor = value;  
+      const newColor = value; 
+      if (this.palette.includes(newColor)) return;
+
       const shiftedPalette = this.palette.slice(1);
       shiftedPalette.push(newColor);
       this.palette = shiftedPalette;

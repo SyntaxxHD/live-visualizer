@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron')
+const {app, BrowserWindow, globalShortcut, ipcMain, screen} = require('electron')
 const path = require('path')
 const url = require('url')
 const fs = require('fs')
@@ -9,10 +9,9 @@ const FileType = require('file-type')
 const windowStateKeeper = require('electron-window-state')
 const colorParse = require('color-parse')
 const colorConvert = require('color-convert')
-const messenger = require('messenger')
 const chokidar = require('chokidar')
 const Store = require('electron-store');
-const { autoUpdater } = require('electron-updater')
+const {autoUpdater} = require('electron-updater')
 
 const store = new Store()
 const errorNames = {
@@ -65,7 +64,6 @@ function openSpectrumWindow() {
       .then(templateData => {
         loadedConfig.path = configPath
         createSpectrumWindow(config, templateData)
-        createListener()
         watchSpectrumConfigChanges()
       })
       .catch(error => {
@@ -99,22 +97,6 @@ function openSpectrumWindow() {
   }
 }
 
-function createListener() {
-  const listener = messenger.createListener(29703)
-
-  listener.on('main.properties.change', (message, data) => {
-    if (isSameConfigLoaded(data.path, loadedConfig.path)) {
-      const properties = JSON.parse(data.content).properties
-      const spectrumProperties = getSpectrumProperties(properties || {})
-      spectrumWindow.webContents.send('spectrum.properties.change.input', spectrumProperties)
-    }
-  })
-
-  listener.on('main.settings.audiosource.change', (message, data) => {
-    spectrumWindow.webContents.send('spectrum.settings.audiosource.change')
-  })
-}
-
 function isMac() {
   return process.platform === 'darwin'
 }
@@ -141,7 +123,7 @@ function readConfig(configPath) {
       error.name = errorNames.INVALID_CONFIG
       throw error
     }
-    return { content: config, visualizerPath: visualizerPath }
+    return {content: config, visualizerPath: visualizerPath}
   } catch (err) {
     return err
   }
@@ -340,30 +322,27 @@ function openUIWindow() {
     }
   })
 
+  uiWindow.setMenuBarVisibility(false)
   uiWindow.loadURL(`file://${path.join(__dirname, 'ui/index.html')}`)
   uiWindowState.manage(uiWindow)
 
   autoUpdater.autoDownload = false
-
-  const speaker = messenger.createSpeaker(29703)
 
   ipcMain.on('ui.properties.change.input', (event, arg) => {
     if (loadedConfig.unlinked || !loadedConfig.valid) return
 
     pauseFileWatch = true
     updateConfig(arg)
-    speaker.shout('main.properties.change', { path: loadedConfig.path, content: loadedConfig.content })
   })
 
   ipcMain.on('ui.settings.audiosource.set', (event, arg) => {
     store.set('settings.audiosource', arg)
-    speaker.shout('main.settings.audiosource.change')
   })
 
   ipcMain.on('ui.config.open', (event, arg) => {
     if (!isFilePath(arg) || getFileExtension(arg) !== '.lvc') return
-    const { title, properties } = getUIProperties(arg) || {}
-    if (title && properties) uiWindow.webContents.send('ui.properties.change.output', { title: title, properties: properties })
+    const {title, properties} = getUIProperties(arg) || {}
+    if (title && properties) uiWindow.webContents.send('ui.properties.change.output', {title: title, properties: properties})
 
     watchUIConfigChanges()
   })
@@ -375,7 +354,7 @@ function openUIWindow() {
   ipcMain.on('ui.colors.palette.set', (event, arg) => {
     store.set('colors.palette', arg)
   })
-  
+
   uiWindow.webContents.once('did-finish-load', async () => {
     const updateCheckResult = await autoUpdater.checkForUpdates()
 
@@ -387,24 +366,24 @@ function openUIWindow() {
         uiWindow.webContents.send('ui.update.download.stop')
       }
     })
-  
+
     ipcMain.on('ui.update.install', event => {
       autoUpdater.quitAndInstall(true, true)
     })
-  
+
     autoUpdater.on('update-available', () => {
       triggerErrorUI('Update available, but cannot be executed')
       uiWindow.webContents.send('ui.update.available')
     })
-  
+
     autoUpdater.on('update-downloaded', () => {
       uiWindow.webContents.send('ui.update.finish')
     })
-  
+
     autoUpdater.on('error', () => {
       uiWindow.webContents.send('ui.update.error')
     })
-  
+
     autoUpdater.on('download-progress', progress => {
       uiWindow.webContents.send('ui.update.progress', progress.percent)
     })
@@ -423,10 +402,11 @@ function getSpectrumProperties(properties) {
   Object.assign(properties, properties, subProperties)
 
   for (let key in properties) {
-    if (!properties[key].value) continue
+    if (!('value' in properties[key])) continue
 
-    values[key] = properties[key].value
-    delete properties[key].value
+    values[key] =  {
+      value: properties[key].value
+    }
   }
 
   return values
@@ -478,12 +458,12 @@ function getCategoryProperties(properties) {
 
 function createSpectrumWindow(config, templateData) {
   spectrumWindow = new BrowserWindow({
-    fullscreen: false,
+    fullscreen: true,
     backgroundColor: '#000',
     webPreferences: {
       devTools: config?.content?.dev || true,
       contextIsolation: false,
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
     }
   })
 
@@ -505,10 +485,10 @@ function getUIProperties(path) {
     loadedConfig.valid = false
     return triggerErrorUI(new Error('Invalid Config. Missing title.'))
   }
-  if (!config.properties) return { title: config.title, properties: {} }
+  if (!config.properties) return {title: config.title, properties: {}}
   loadedConfig.valid = true
 
-  return { title: config.title, properties: validateProperties(config.properties) }
+  return {title: config.title, properties: validateProperties(config.properties)}
 }
 
 function readUploadedConfig(path) {
@@ -566,7 +546,7 @@ function validateProperties(properties) {
 }
 
 function isSliderPropertyValid(property) {
-  const { label, type, value, min, max, step } = property
+  const {label, type, value, min, max, step} = property
   return (
     'label' in property &&
     'type' in property &&
@@ -592,7 +572,7 @@ function isSliderPropertyValid(property) {
 }
 
 function isCheckboxPropertyValid(property) {
-  const { label, type, value } = property
+  const {label, type, value} = property
   return (
     'label' in property &&
     'type' in property &&
@@ -604,7 +584,7 @@ function isCheckboxPropertyValid(property) {
 }
 
 function isSelectPropertyValid(property) {
-  const { label, type, options } = property
+  const {label, type, options} = property
   return (
     'label' in property &&
     'type' in property &&
@@ -625,7 +605,7 @@ function isSelectPropertyValid(property) {
 }
 
 function isColorPropertyValid(property) {
-  const { label, type, value } = property;
+  const {label, type, value} = property;
   return (
     'label' in property &&
     'type' in property &&
@@ -637,7 +617,7 @@ function isColorPropertyValid(property) {
 }
 
 function isFilePropertyValid(property) {
-  const { label, type, value, fileType } = property
+  const {label, type, value, fileType} = property
 
   return (
     'label' in property &&
@@ -653,7 +633,7 @@ function isFilePropertyValid(property) {
 }
 
 function isTextPropertyValid(property) {
-  const { label, type, value } = property
+  const {label, type, value} = property
 
   return (
     'label' in property &&
@@ -666,7 +646,7 @@ function isTextPropertyValid(property) {
 }
 
 function isCategoryPropertyValid(property) {
-  const { label, type, value, properties } = property
+  const {label, type, value, properties} = property
 
   return (
     'label' in property &&
@@ -720,37 +700,34 @@ function triggerErrorUI(error) {
 let timeoutId
 
 function updateConfigFile(path, content) {
-  clearTimeout(timeoutId)
-  timeoutId = setTimeout(() => {
-    fs.writeFile(path, content, 'utf8', err => {
-      if (err) triggerErrorUI(err)
-    })
-  }, 1000)
+  fs.writeFile(path, content, 'utf8', err => {
+    if (err) triggerErrorUI(err)
+  })
 }
 
 function convertoToRGB(colorString) {
-  if (!colorString) return { r: 0, g: 0, b: 0 }
+  if (!colorString) return {r: 0, g: 0, b: 0}
   try {
     const color = colorParse(colorString)
 
     if (color.space === 'hsl') {
       const rgb = colorConvert.hsl.rgb(color.values[0], color.values[1], color.values[2])
-      return { r: rgb[0], g: rgb[1], b: rgb[2] }
+      return {r: rgb[0], g: rgb[1], b: rgb[2]}
     }
     else if (color.space === 'hex') {
       const rgb = colorConvert.hex.rgb(color.values)
-      return { r: rgb[0], g: rgb[1], b: rgb[2] }
+      return {r: rgb[0], g: rgb[1], b: rgb[2]}
     }
     else if (color.space === 'rgb') {
-      return { r: color.values[0], g: color.values[1], b: color.values[2] }
+      return {r: color.values[0], g: color.values[1], b: color.values[2]}
     }
     else {
       triggerErrorSpectrum(new Error(`Invalid color string: ${color}`))
-      return { r: 0, g: 0, b: 0 }
+      return {r: 0, g: 0, b: 0}
     }
   } catch (err) {
     triggerErrorSpectrum(err)
-    return { r: 0, g: 0, b: 0 }
+    return {r: 0, g: 0, b: 0}
   }
 }
 
@@ -768,8 +745,8 @@ function watchUIConfigChanges() {
     if (changedFilePath === loadedConfig.path) {
       if (loadedConfig.unlinked) loadedConfig.unlinked = false
 
-      const { title, properties } = getUIProperties(loadedConfig.path) || {}
-      uiWindow.webContents.send('ui.properties.change.output', { title: title, properties: properties })
+      const {title, properties} = getUIProperties(loadedConfig.path) || {}
+      uiWindow.webContents.send('ui.properties.change.output', {title: title, properties: properties})
     }
   })
     .on('unlink', changedFilePath => {
@@ -787,6 +764,7 @@ function watchSpectrumConfigChanges() {
     if (changedFilePath === loadedConfig.path) {
       const config = readConfig(loadedConfig.path)
       const properties = getSpectrumProperties(config?.content?.properties || {})
+      loadedConfig.properties = properties
       spectrumWindow.webContents.send('spectrum.properties.change.input', properties)
     }
   })

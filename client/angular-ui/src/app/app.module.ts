@@ -3,8 +3,6 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MAT_COLOR_FORMATS, NgxMatColorPickerModule, NGX_MAT_COLOR_FORMATS } from '@angular-material-components/color-picker';
-import { MaterialExampleModule } from '../material.module';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgxColorsModule } from 'ngx-colors';
 import { SliderComponent } from './property-types/slider/slider.component';
@@ -24,6 +22,20 @@ import { UpdateFinishDialogComponent } from './dialogs/update/finish/finish.comp
 import { UpdateErrorDialogComponent } from './dialogs/update/error/error.component';
 import { UpdateProgressDialogComponent } from './dialogs/update/progress/progress.component';
 
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {DialogModule} from '@angular/cdk/dialog';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,20 +54,30 @@ import { UpdateProgressDialogComponent } from './dialogs/update/progress/progres
     UpdateNotificationDialogComponent,
     UpdateFinishDialogComponent,
     UpdateErrorDialogComponent,
-    UpdateProgressDialogComponent
+    UpdateProgressDialogComponent,
+    
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    NgxMatColorPickerModule,
-    MaterialExampleModule,
     ReactiveFormsModule,
     FormsModule,
-    NgxColorsModule
+    NgxColorsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatExpansionModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressBarModule,
+    MatSelectModule,
+    MatSliderModule,
+    MatSnackBarModule,
+    MatToolbarModule,
+    DialogModule,
   ],
-  providers: [
-    { provide: MAT_COLOR_FORMATS, useValue: NGX_MAT_COLOR_FORMATS }
-  ],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

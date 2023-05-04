@@ -9,7 +9,7 @@
     "background_color": {
       "label": "Background Color",
       "type": "color",
-      "value": "#6b6b6b"
+      "value": "#000000"
     },
     "bloom_intensity": {
       "max": 2,
@@ -17,7 +17,7 @@
       "step": 0.01,
       "label": "Bloom Intensity",
       "type": "slider",
-      "value": 0.8
+      "value": 0.1
     },
     "bloom_threshold": {
       "min": 0,
@@ -25,12 +25,12 @@
       "step": 0.01,
       "label": "Bloom Threshold",
       "type": "slider",
-      "value": 0.6
+      "value": 1
     },
     "colorful": {
       "label": "Random Color",
       "type": "checkbox",
-      "value": true
+      "value": false
     },
     "density_diffusion": {
       "min": 0.9,
@@ -77,7 +77,7 @@
       ],
       "label": "Dye Resolution",
       "type": "select",
-      "value": 512
+      "value": 1024
     },
     "enable_bloom": {
       "label": "Enable Bloom",
@@ -113,7 +113,7 @@
       "step": 1,
       "label": "Frequency Range",
       "type": "slider",
-      "value": 8
+      "value": 1
     },
     "frequency_range_start": {
       "min": 0,
@@ -121,7 +121,7 @@
       "step": 1,
       "label": "Frequency Range Start",
       "type": "slider",
-      "value": 0
+      "value": 3
     },
     "more_colors": {
       "properties": {
@@ -156,7 +156,7 @@
       "step": 0.01,
       "label": "Pressure Diffusion",
       "type": "slider",
-      "value": 0.8
+      "value": 1
     },
     "schemecolor": {
       "label": "Scheme Color",
@@ -197,12 +197,12 @@
       "step": 0.01,
       "label": "Sound Sensitivity",
       "type": "slider",
-      "value": 5
+      "value": 0.18
     },
     "splat_color": {
       "label": "Splat Color",
       "type": "color",
-      "value": "#000100"
+      "value": "#04ffd9"
     },
     "splat_radius": {
       "min": 0.01,
@@ -210,7 +210,7 @@
       "step": 0.01,
       "label": "Splat Radius",
       "type": "slider",
-      "value": 0.3
+      "value": 0.31
     },
     "use_background_image": {
       "properties": {
@@ -243,7 +243,7 @@
       },
       "label": "Use Background Image",
       "type": "category",
-      "value": true
+      "value": false
     },
     "velocity_diffusion": {
       "min": 0.9,
@@ -251,14 +251,15 @@
       "step": 0.001,
       "label": "Velocity Diffusion",
       "type": "slider",
-      "value": 0.98
+      "value": 1
     },
     "vorticity": {
       "min": 0,
       "max": 50,
+      "step": 1,
       "label": "Vorticity",
       "type": "slider",
-      "value": 30
+      "value": 0
     }
   }
 }

@@ -27,7 +27,6 @@ let config = {
   splat_radius: 0.3,
   shading: true,
   colorful: true,
-  paused: false,
   back_color: {r: 0, g: 0, b: 0},
   transparent: false,
   bloom: true,
@@ -38,7 +37,6 @@ let config = {
   bloom_soft_knee: 0.7,
   pointer_color: [{r: 0, g: 0.15, b: 0}],
   sound_sensitivity: 1,
-  audio_responsive: true,
   freq_range: 8,
   freq_range_start: 0,
   idle_splats: false,
@@ -53,14 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (properties.colorful) config.colorful = properties.colorful.value;
     if (properties.density_diffusion) config.density_dissipation = properties.density_diffusion.value;
     if (properties.enable_bloom) config.bloom = properties.enable_bloom.value;
-    if (properties.paused) config.paused = properties.paused.value;
     if (properties.pressure_diffusion) config.pressure_dissipation = properties.pressure_diffusion.value;
     if (properties.shading) config.shading = properties.shading.value;
     if (properties.splat_radius) config.splat_radius = properties.splat_radius.value;
     if (properties.velocity_diffusion) config.velocity_dissipation = properties.velocity_diffusion.value;
     if (properties.vorticity) config.curl = properties.vorticity.value;
     if (properties.sound_sensitivity) config.sound_sensitivity = properties.sound_sensitivity.value;
-    if (properties.audio_responsive) config.audio_responsive = properties.audio_responsive.value;
     if (properties.simulation_resolution) {
       config.sim_resolution = properties.simulation_resolution.value;
       initFramebuffers();
@@ -82,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       r = color.r,
       g = color.g,
       b = color.b
-      document.body.style.backgroundColor = properties.background_color
+      document.body.style.backgroundColor = properties.background_color.value
       config.back_color.r = r
       config.back_color.g = g
       config.back_color.b = b
@@ -93,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
       config.pointer_color = splatColors;
     }
     if (properties.use_background_image) config.transparent = properties.use_background_image.value;
-    if (properties.background_image) canvas.style.backgroundImage = `url("file:///${properties.background_image.value}")`;
+    if (properties?.background_image.value) canvas.style.backgroundImage = `url("file:///${properties.background_image.value}")`;
     if (properties.repeat_background) canvas.style.backgroundRepeat = properties.repeat_background.value ? "repeat" : "no-repeat";
     if (properties.background_image_size) canvas.style.backgroundSize = properties.background_image_size.value;
     if (properties.frequency_range) {
@@ -135,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.registerFFTDataListener(audioArray => {
-    if (!config.audio_responsive) return;
     if (audioArray[0] > 5) return;
 
     let bass = 0.0;
@@ -958,8 +953,7 @@ update();
 function update() {
   resizeCanvas();
   input();
-  if (!config.paused)
-    step(0.016);
+  step(0.016);
   render(null);
   requestAnimationFrame(update);
 }
@@ -1287,8 +1281,8 @@ function getTextureScale(texture, width, height) {
 function rgbToPointerColor(color) {
   let c = window.convertToRGB(color);
   return {
-    r: c.r * 0.15,
-    g: c.g * 0.15,
-    b: c.b * 0.15
+    r: (c.r / 255) * 0.15,
+    g: (c.g / 255) * 0.15,
+    b: (c.b / 255) * 0.15
   }
 }

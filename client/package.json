@@ -41,7 +41,8 @@
     "start:dev": "electron .",
     "start:splash": "electron . ../visualizers/splash/src/splash.lvc",
     "build": "rm -rf dist && electron-builder build --win --mac --publish never",
-    "deploy": "rm -rf dist && electron-builder build --win --publish always"
+    "build:win": "electron-builder build --win --publish never",
+    "deploy": "rm -rf dist && electron-builder build --win --mac --publish always"
   },
   "repository": {
     "type": "git",
@@ -63,7 +64,6 @@
     "electron-window-state": "^5.0.3",
     "file-type": "^16.5.4",
     "jsonc-parser": "^3.2.0",
-    "messenger": "^0.0.9",
     "node-stream-zip": "^1.15.0"
   },
   "devDependencies": {
