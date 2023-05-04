@@ -322,7 +322,7 @@ function triggerErrorSpectrum(error) {
   return spectrumWindow.webContents.send('spectrum.errors.message', error)
 }
 
-async function openUIWindow() {
+function openUIWindow() {
   const uiWindowState = windowStateKeeper({
     defaultWidth: 1000,
     defaultHeight: 800
@@ -334,7 +334,7 @@ async function openUIWindow() {
     width: uiWindowState.width,
     height: uiWindowState.height,
     webPreferences: {
-      devTools: !app.isPackaged,
+      //devTools: !app.isPackaged,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js')
     }
@@ -344,7 +344,6 @@ async function openUIWindow() {
   uiWindowState.manage(uiWindow)
 
   autoUpdater.autoDownload = false
-  const updateCheckResult = await autoUpdater.checkForUpdates()
 
   const speaker = messenger.createSpeaker(29703)
 
@@ -376,34 +375,39 @@ async function openUIWindow() {
   ipcMain.on('ui.colors.palette.set', (event, arg) => {
     store.set('colors.palette', arg)
   })
+  
+  uiWindow.webContents.once('did-finish-load', async () => {
+    const updateCheckResult = await autoUpdater.checkForUpdates()
 
-  ipcMain.on('ui.update.download.start', event => {
-    if (isUpdateAvailable(updateCheckResult)) {
-      autoUpdater.downloadUpdate()
-    }
-    else {
-      uiWindow.webContents.send('ui.update.download.stop')
-    }
-  })
-
-  ipcMain.on('ui.update.install', event => {
-    autoUpdater.quitAndInstall(true, true)
-  })
-
-  autoUpdater.on('update-available', () => {
-    uiWindow.webContents.send('ui.update.available')
-  })
-
-  autoUpdater.on('update-downloaded', () => {
-    uiWindow.webContents.send('ui.update.finish')
-  })
-
-  autoUpdater.on('error', () => {
-    uiWindow.webContents.send('ui.update.error')
-  })
-
-  autoUpdater.on('download-progress', progress => {
-    uiWindow.webContents.send('ui.update.progress', progress.percent)
+    ipcMain.on('ui.update.download.start', event => {
+      if (isUpdateAvailable(updateCheckResult)) {
+        autoUpdater.downloadUpdate()
+      }
+      else {
+        uiWindow.webContents.send('ui.update.download.stop')
+      }
+    })
+  
+    ipcMain.on('ui.update.install', event => {
+      autoUpdater.quitAndInstall(true, true)
+    })
+  
+    autoUpdater.on('update-available', () => {
+      triggerErrorUI('Update available, but cannot be executed')
+      uiWindow.webContents.send('ui.update.available')
+    })
+  
+    autoUpdater.on('update-downloaded', () => {
+      uiWindow.webContents.send('ui.update.finish')
+    })
+  
+    autoUpdater.on('error', () => {
+      uiWindow.webContents.send('ui.update.error')
+    })
+  
+    autoUpdater.on('download-progress', progress => {
+      uiWindow.webContents.send('ui.update.progress', progress.percent)
+    })
   })
 }
 

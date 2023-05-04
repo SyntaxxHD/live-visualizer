@@ -1,6 +1,6 @@
 {
   "name": "live-visualizer",
-  "version": "10.0.0",
+  "version": "1.0.0",
   "description": "Live Visualizer for DJ's",
   "main": "index.js",
   "build": {
@@ -41,7 +41,7 @@
     "start:dev": "electron .",
     "start:splash": "electron . ../visualizers/splash/src/splash.lvc",
     "build": "rm -rf dist && electron-builder build --win --mac --publish never",
-    "deploy": "rm -rf dist && electron-builder build --win --mac --publish always"
+    "deploy": "rm -rf dist && electron-builder build --win --publish always"
   },
   "repository": {
     "type": "git",

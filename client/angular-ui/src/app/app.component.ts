@@ -57,8 +57,6 @@ export class AppComponent {
     ipcRenderer.on('ui.update.available', (event: Event) => {
       this.dialog.open(UpdateNotificationDialogComponent)
     })
-
-    this.dialog.open(UpdateNotificationDialogComponent)
   }
 
   createForm(): FormGroup {
