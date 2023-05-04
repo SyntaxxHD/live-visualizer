@@ -19,6 +19,10 @@ import { ToolbarComponent } from './toolbar/toolbar.component';
 import { FileDragNDropDirective } from './file-drop/file-drag-n-drop.directive';
 import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
 import { SettingsDialogComponent } from './dialogs/settings/settings.component';
+import { UpdateNotificationDialogComponent } from './dialogs/update/notification/notification.component';
+import { UpdateFinishDialogComponent } from './dialogs/update/finish/finish.component';
+import { UpdateErrorDialogComponent } from './dialogs/update/error/error.component';
+import { UpdateProgressDialogComponent } from './dialogs/update/progress/progress.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +38,11 @@ import { SettingsDialogComponent } from './dialogs/settings/settings.component';
     ToolbarComponent,
     FileDragNDropDirective,
     UnlinkDialogComponent,
-    SettingsDialogComponent
+    SettingsDialogComponent,
+    UpdateNotificationDialogComponent,
+    UpdateFinishDialogComponent,
+    UpdateErrorDialogComponent,
+    UpdateProgressDialogComponent
   ],
   imports: [
     BrowserModule,

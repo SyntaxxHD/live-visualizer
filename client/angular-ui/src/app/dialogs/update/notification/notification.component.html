@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Update available</h1>
+<div mat-dialog-content>
+  A new update is available. Do you want to download and install it now?
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>LATER</button>
+  <button mat-button color="primary" mat-dialog-close cdkFocusInitial (click)="downloadUpdate()">DOWNLOAD</button>
+</div>

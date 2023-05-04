@@ -1,13 +1,47 @@
 {
   "name": "live-visualizer",
-  "version": "1.0.0",
+  "version": "10.0.0",
   "description": "Live Visualizer for DJ's",
   "main": "index.js",
+  "build": {
+    "appId": "com.syntaxx.livevisualizer",
+    "productName": "Live Visualizer",
+    "asar": true,
+    "fileAssociations": [
+      {
+        "ext": "lvc",
+        "name": "Live Visualizer Config",
+        "description": "Configuration for Live Visualizer Animation"
+      },
+      {
+        "ext": "lva",
+        "name": "Live Visualizer Animation",
+        "description": "Animation for Live Visualizer"
+      }
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.video",
+      "type": "distribution"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false,
+      "perMachine": true
+    },
+    "files": [
+      "!angular-ui${/*}*"
+    ]
+  },
   "scripts": {
     "start": "cd angular-ui && npm run build && cd .. && electron .",
     "start:dev": "electron .",
     "start:splash": "electron . ../visualizers/splash/src/splash.lvc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf dist && electron-builder build --win --mac --publish never",
+    "deploy": "rm -rf dist && electron-builder build --win --mac --publish always"
   },
   "repository": {
     "type": "git",
@@ -24,12 +58,16 @@
     "color-convert": "^2.0.1",
     "color-parse": "^1.4.2",
     "ejs-electron": "^2.1.1",
-    "electron": "^23.2.0",
     "electron-store": "^8.1.0",
+    "electron-updater": "^5.3.0",
     "electron-window-state": "^5.0.3",
     "file-type": "^16.5.4",
     "jsonc-parser": "^3.2.0",
     "messenger": "^0.0.9",
     "node-stream-zip": "^1.15.0"
+  },
+  "devDependencies": {
+    "electron": "^24.1.3",
+    "electron-builder": "^23.6.0"
   }
 }

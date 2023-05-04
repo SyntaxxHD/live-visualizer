@@ -9,7 +9,7 @@ Live Visualizer is a program that allows DJs to have appealing visuals running i
 - [x] File change detection
 - [x] Settings dialog
 - [x] Audio source selection
-- [ ] Automatic updates
+- [x] Automatic updates
 - [ ] Dark mode support
 - [x] Visualizer title in UI
 - [x] Shorter text boxes

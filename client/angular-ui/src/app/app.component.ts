@@ -5,6 +5,7 @@ import { IpcRenderer } from 'electron';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { UnlinkDialogComponent } from './dialogs/unlink/unlink.component';
+import { UpdateNotificationDialogComponent } from './dialogs/update/notification/notification.component';
 
 declare const ipcRenderer: IpcRenderer;
 
@@ -52,6 +53,12 @@ export class AppComponent {
         this.cdr.detectChanges();
       });
     })
+
+    ipcRenderer.on('ui.update.available', (event: Event) => {
+      this.dialog.open(UpdateNotificationDialogComponent)
+    })
+
+    this.dialog.open(UpdateNotificationDialogComponent)
   }
 
   createForm(): FormGroup {
