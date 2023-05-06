@@ -32,6 +32,10 @@ let loadedConfig = {
   properties: {}
 }
 let pauseFileWatch = false
+let update = {
+  available: false,
+  downloaded: false
+}
 
 let uiWindow
 
@@ -161,14 +165,6 @@ ipcMain.on('all.platform.mac', event => {
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
 })
-
-function isSameConfigLoaded(uiConfig, spectrumConfig) {
-  return (
-    uiConfig &&
-    spectrumConfig &&
-    uiConfig === spectrumConfig
-  )
-}
 
 function isFilePath(string) {
   try {
@@ -356,31 +352,28 @@ function openUIWindow() {
   })
 
   uiWindow.webContents.once('did-finish-load', async () => {
-    const updateCheckResult = await autoUpdater.checkForUpdates()
+    autoUpdater.checkForUpdates()
 
     ipcMain.on('ui.update.download.start', event => {
-      if (isUpdateAvailable(updateCheckResult)) {
-        autoUpdater.downloadUpdate()
-      }
-      else {
-        uiWindow.webContents.send('ui.update.download.stop')
-      }
+      if (update.available) autoUpdater.downloadUpdate()
     })
 
     ipcMain.on('ui.update.install', event => {
-      autoUpdater.quitAndInstall(true, true)
+      if (update.downloaded) autoUpdater.quitAndInstall(true, true)
     })
 
     autoUpdater.on('update-available', () => {
-      triggerErrorUI('Update available, but cannot be executed')
+      update.available = true
       uiWindow.webContents.send('ui.update.available')
     })
 
     autoUpdater.on('update-downloaded', () => {
+      update.downloaded = true
       uiWindow.webContents.send('ui.update.finish')
     })
 
-    autoUpdater.on('error', () => {
+    autoUpdater.on('error', error => {
+      triggerErrorUI(error)
       uiWindow.webContents.send('ui.update.error')
     })
 
@@ -388,10 +381,6 @@ function openUIWindow() {
       uiWindow.webContents.send('ui.update.progress', progress.percent)
     })
   })
-}
-
-function isUpdateAvailable(updateCheckResult) {
-  return !!updateCheckResult?.updateInfo?.version;
 }
 
 function getSpectrumProperties(properties) {

@@ -20,7 +20,7 @@
       }
     ],
     "mac": {
-      "target": "dmg",
+      "target": "default",
       "category": "public.app-category.video",
       "type": "distribution"
     },
