@@ -18,15 +18,24 @@ Live Visualizer is a program that allows DJs to have appealing visuals running i
 
 Download the latest version of Live Visualizer for Windows and Mac OS from the Releases tab in Github (not available yet).
 
+### Available Visualizers
+
+- Colorful Fluid Visualizer: https://github.com/SyntaxxHD/live-visualizer/tree/main/visualizers/colorful-fluid-visualizer/packaged
+
 ## Usage
 
-### Opening a Visualizer
+### Visualizer
+#### Opening a Visualizer
 
 To open a Visualizer, follow theses steps:
 
 1. Download a Live Visualizer Animation (.lva file).
 2. Download it's corresponding Live Visualizer Configuration (.lvc file).
 3. Double-click the .lvc file to open the Visualizer
+
+#### Switching the monitor
+
+To switch the monitor where the visualizer is playing, use the `command` or `control` key combined with the `number` corresponding to the desired monitor
 
 ### User Interface (UI) Guide
 
