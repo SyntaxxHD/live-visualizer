@@ -1,0 +1,263 @@
+{
+  "visualizer_path": "./colorful-fluid-visualizer.lva",
+  "title": "Colorful Fluid Visualizer",
+  "images": [
+    "LDR_RGB1_0.png"
+  ],
+  "properties": {
+    "sound_sensitivity": {
+      "min": 0,
+      "max": 10,
+      "step": 0.01,
+      "label": "Sound Sensitivity",
+      "type": "slider",
+      "value": 0.6
+    },
+    "frequency_range": {
+      "min": 1,
+      "max": 62,
+      "step": 1,
+      "label": "Frequency Range",
+      "type": "slider",
+      "value": 8
+    },
+    "frequency_range_start": {
+      "min": 0,
+      "max": 62,
+      "step": 1,
+      "label": "Frequency Range Start",
+      "type": "slider",
+      "value": 0
+    },
+    "use_background_image": {
+      "properties": {
+        "background_image": {
+          "label": "Background Image",
+          "type": "file",
+          "value": "",
+          "fileType": "image"
+        },
+        "background_image_size": {
+          "options": [
+            {
+              "label": "Contain",
+              "value": "contain"
+            },
+            {
+              "label": "Cover",
+              "value": "Cover"
+            }
+          ],
+          "label": "Background Image Size",
+          "type": "select",
+          "value": "contain"
+        },
+        "repeat_background": {
+          "label": "Repeat Background",
+          "type": "checkbox",
+          "value": false
+        }
+      },
+      "label": "Use Background Image",
+      "type": "category",
+      "value": false
+    },
+    "background_color": {
+      "label": "Background Color",
+      "type": "color",
+      "value": "#000000"
+    },
+    "schemecolor": {
+      "label": "Scheme Color",
+      "type": "color",
+      "value": "#000"
+    },
+    "colorful": {
+      "label": "Random Color",
+      "type": "checkbox",
+      "value": true
+    },
+    "more_colors": {
+      "properties": {
+        "splat_color_2": {
+          "label": "Splat Color 2",
+          "type": "color",
+          "value": "#000101"
+        },
+        "splat_color_3": {
+          "label": "Splat Color 3",
+          "type": "color",
+          "value": "#000001"
+        },
+        "splat_color_4": {
+          "label": "Splat Color 4",
+          "type": "color",
+          "value": "#010000"
+        },
+        "splat_color_5": {
+          "label": "Splat Color 5",
+          "type": "color",
+          "value": "#010100"
+        }
+      },
+      "label": "More Colors",
+      "type": "category",
+      "value": false
+    },
+    "splat_color": {
+      "label": "Splat Color",
+      "type": "color",
+      "value": "#000100"
+    },
+    "splat_radius": {
+      "min": 0.01,
+      "max": 1,
+      "step": 0.01,
+      "label": "Splat Radius",
+      "type": "slider",
+      "value": 0.3
+    },
+    "bloom_intensity": {
+      "max": 2,
+      "min": 0.1,
+      "step": 0.01,
+      "label": "Bloom Intensity",
+      "type": "slider",
+      "value": 0.8
+    },
+    "bloom_threshold": {
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "label": "Bloom Threshold",
+      "type": "slider",
+      "value": 0.6
+    },
+    "enable_bloom": {
+      "label": "Enable Bloom",
+      "type": "checkbox",
+      "value": true
+    },
+    "shading": {
+      "label": "Shading",
+      "type": "checkbox",
+      "value": true
+    },
+    "pressure_diffusion": {
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "label": "Pressure Diffusion",
+      "type": "slider",
+      "value": 0.8
+    },
+    "density_diffusion": {
+      "min": 0.9,
+      "max": 1,
+      "step": 0.001,
+      "label": "Density Diffusion",
+      "type": "slider",
+      "value": 0.969
+    },
+    "velocity_diffusion": {
+      "min": 0.9,
+      "max": 1,
+      "step": 0.001,
+      "label": "Velocity Diffusion",
+      "type": "slider",
+      "value": 0.98
+    },
+    "vorticity": {
+      "min": 0,
+      "max": 50,
+      "label": "Vorticity",
+      "type": "slider",
+      "value": 30
+    },
+    "simulation_resolution": {
+      "options": [
+        {
+          "label": "32",
+          "value": 32
+        },
+        {
+          "label": "64",
+          "value": 64
+        },
+        {
+          "label": "128",
+          "value": 128
+        },
+        {
+          "label": "256",
+          "value": 256
+        }
+      ],
+      "label": "Simulation Resolution",
+      "type": "select",
+      "value": 256
+    },
+    "dye_resolution": {
+      "options": [
+        {
+          "label": "32",
+          "value": 32
+        },
+        {
+          "label": "64",
+          "value": 64
+        },
+        {
+          "label": "128",
+          "value": 128
+        },
+        {
+          "label": "256",
+          "value": 256
+        },
+        {
+          "label": "512",
+          "value": 512
+        },
+        {
+          "label": "1024",
+          "value": 1024
+        },
+        {
+          "label": "2048",
+          "value": 2048
+        },
+        {
+          "label": "4096",
+          "value": 4096
+        }
+      ],
+      "label": "Dye Resolution",
+      "type": "select",
+      "value": 512
+    },
+    "idle_random_splats": {
+      "properties": {
+        "random_splat_amount": {
+          "min": 1,
+          "max": 100,
+          "step": 1,
+          "label": "Random Splat Amount",
+          "type": "slider",
+          "value": 10
+        },
+        "random_splat_interval": {
+          "min": 0,
+          "max": 5,
+          "step": 0.01,
+          "label": "Random Splat Interval",
+          "type": "slider",
+          "value": 1
+        }
+      },
+      "label": "Idle Random Splats",
+      "type": "category",
+      "value": false
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "live-visualizer",
   "version": "1.0.0",
-  "description": "Live Visualizer for DJ's",
+  "description": "Live Visualizer",
   "main": "index.js",
   "build": {
     "appId": "com.syntaxx.livevisualizer",

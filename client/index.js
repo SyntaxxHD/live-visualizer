@@ -453,6 +453,7 @@ function createSpectrumWindow(config, templateData) {
       devTools: config?.content?.dev || true,
       contextIsolation: false,
       preload: path.join(__dirname, 'preload.js'),
+      backgroundThrottling: false
     }
   })
 
