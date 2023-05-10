@@ -687,8 +687,6 @@ function triggerErrorUI(error) {
   return null
 }
 
-let timeoutId
-
 function updateConfigFile(path, content) {
   fs.writeFile(path, content, 'utf8', err => {
     if (err) triggerErrorUI(err)
