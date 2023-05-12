@@ -6,9 +6,17 @@ Live Visualizer is a program that allows DJs to have appealing visuals running i
 
 Download the latest version of Live Visualizer for Windows and Mac OS from the Releases tab in Github https://github.com/SyntaxxHD/live-visualizer/releases/latest.
 
-### Available Visualizers
+## Available Visualizers
 
-- Colorful Fluid Visualizer: https://github.com/SyntaxxHD/live-visualizer/tree/main/visualizers/colorful-fluid-visualizer/packaged
+### Colorful Fluid Visualizer
+
+#### Download
+
+https://github.com/SyntaxxHD/live-visualizer/tree/main/visualizers/colorful-fluid-visualizer/packaged
+
+#### Preview
+![2023-05-12_19-35-50_AdobeExpress](https://github.com/SyntaxxHD/live-visualizer/assets/68400062/043b4172-5977-4e67-9f81-ef43597eb700)
+![2023-05-12_19-22-21_AdobeExpress](https://github.com/SyntaxxHD/live-visualizer/assets/68400062/1b36f3fe-17d8-4c9e-9994-6137d25db937)
 
 ## Usage
 
