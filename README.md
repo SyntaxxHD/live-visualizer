@@ -1,22 +1,10 @@
 # Live Visualizer
 
-Live Visualizer is a program that allows DJs to have appealing visuals running in the background which are in sync with the music. It is available for Windows and Mac OS and can be downloaded from the Releases tab in Github (not available yet).
-
-## ToDo
-
-- [x] Config file save cooldown
-- [x] Live change of properties in spectrum
-- [x] File change detection
-- [x] Settings dialog
-- [x] Audio source selection
-- [x] Automatic updates
-- [ ] Dark mode support
-- [x] Visualizer title in UI
-- [x] Shorter text boxes
+Live Visualizer is a program that allows DJs to have appealing visuals running in the background which are in sync with the music. It is available for Windows and Mac OS.
 
 ## Download
 
-Download the latest version of Live Visualizer for Windows and Mac OS from the Releases tab in Github (not available yet).
+Download the latest version of Live Visualizer for Windows and Mac OS from the Releases tab in Github https://github.com/SyntaxxHD/live-visualizer/releases/latest.
 
 ### Available Visualizers
 
